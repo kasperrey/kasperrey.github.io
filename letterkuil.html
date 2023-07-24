@@ -19,11 +19,12 @@
 <button onclick="Button('w')" id="W">W</button><button onclick="Button('x')" id="X">X</button>
 <button onclick="Button('y')" id="Y">Y</button><button onclick="Button('z')" id="Z">Z</button>
 <button onclick="begin()" id="Begin">Begin</button><button onclick="selectAlles()" id="select">selecteer alles</button>
+<button onclick="levels(1)">level 1</button><button onclick="levels(3)">level 3</button><button onclick="levels(6)">level 6</button>
 
 
 <script>
     var canvas = document.createElement('canvas');
-    canvas.width = 1200;
+    canvas.width = 1500;
     canvas.height = 700;
     document.body.appendChild(canvas);
     var c = canvas.getContext('2d');
@@ -31,24 +32,24 @@
     var geselekteerde_letters = [];
     var random_lijst = [];
     var start = false;
+    var isBijGat = false;
     var x = 0;
-    var snelheid = 1000;
-    var aantalInHetGat = 0;
-    addEventListener("keypress", function (ev) {
+    var snelheid = 20;
+    var pac1 = new Image()
+    var pac2 = new Image()
+    var pac3 = new Image()
+    var pac4 = new Image()
+    var pac = 4
+    var aantal_tekenen = 0
+    var level = 1
+    pac1.src = "pacman.png"
+    pac2.src = "pacman2.png"
+    pac3.src = "pacman3.png"
+    pac4.src = "pacman4.png"
+    addEventListener("keyup", function (ev) {
         if (ev.key === random_lijst.at(0)) {
             random_lijst.splice(0, 1);
             x-=25;
-            c.clearRect(0, 0, 1200, 700);
-            c.fillStyle = "#000000"
-            c.fillRect(680, 150, 1200, 200)
-            c.fillStyle = "#FFFFFF"
-            c.fillText(geselekteerde_letters.join(" "), 20, 20);
-            drawLine(800, 260, 1200, 260);
-            var xVanLetter = 1200-x;
-            for (var nRl=0; nRl<random_lijst.length; nRl++) {
-                c.fillText(random_lijst.at(nRl)+" ", xVanLetter, 240);
-                xVanLetter += 25;
-            }
         }
     })
     lus();
@@ -67,7 +68,6 @@
     }
 
     function begin() {
-        snelheid = 1000
         var beginbutton = document.getElementById("Begin");
         beginbutton.innerText = "Stop";
         beginbutton.onclick = stop;
@@ -84,47 +84,83 @@
         random_lijst = [];
         x = 0;
         start = false;
+        level = 1
+        snelheid = 30
     }
 
     function lus() {
         c.clearRect(0, 0, 1200, 700);
+        c.fillStyle = "#868686"
+        c.fillRect(1095, 110, 80, 25)
         c.fillStyle = "#000000"
-        c.fillRect(680, 150, 1200, 200)
+        c.fillRect(680, 150, 520, 200)
         c.fillText(geselekteerde_letters.join(" "), 20, 20);
+        c.fillText("level: "+level, 1100, 130)
         c.fillStyle = "#FFFFFF"
         drawLine(800, 260, 1200, 260);
-        if (start) {
-            if (aantalInHetGat >= 5) {
-                snelheid = 1000
-                stop()
+        if (pac === 1) {
+            c.drawImage(pac1, 575, 150)
+            aantal_tekenen += 1
+            if (aantal_tekenen === 20) {
+                pac = 4
+                aantal_tekenen = 0
             }
-            if (!random_lijst.length){
-                snelheid = snelheid*0.9
-                for (var n=0; n<26; n++){
+        } else if (pac === 2) {
+            c.drawImage(pac3, 575, 150)
+            aantal_tekenen += 1
+            if (aantal_tekenen === 20) {
+                pac = 1
+                aantal_tekenen = 0
+            }
+        } else if (pac === 3) {
+            c.drawImage(pac4, 575, 150)
+            aantal_tekenen += 1
+            if (aantal_tekenen === 20) {
+                pac = 2
+                aantal_tekenen = 0
+            }
+        } else if (pac === 4) {
+            c.drawImage(pac2, 575, 150)
+            aantal_tekenen += 1
+            if (aantal_tekenen === 20) {
+                pac = 3
+                aantal_tekenen = 0
+            }
+        }
+        if (start) {
+            if (isBijGat) {
+                snelheid = snelheid+2
+                for (var r = 0; r < 26; r++) {
                     random_lijst.push(geselekteerde_letters.at(getRandomInt(geselekteerde_letters.length)));
                 }
                 x = 0
-                aantalInHetGat = 0
+                isBijGat = false
+                level -= 1
             }
-            var xVanLetter = 1200-x;
-            var isBijGat = false;
-            for (var nRl=0; nRl<random_lijst.length; nRl++) {
+            if (!random_lijst.length) {
+                snelheid = snelheid-4
+                for (var n = 0; n < 26; n++) {
+                    random_lijst.push(geselekteerde_letters.at(getRandomInt(geselekteerde_letters.length)));
+                }
+                x = 0
+                isBijGat = false
+                level += 1
+            }
+            var xVanLetter = 1200 - x;
+            for (var nRl = 0; nRl < random_lijst.length; nRl++) {
                 if (xVanLetter > 775) {
                     c.fillText(random_lijst.at(nRl) + " ", xVanLetter, 240);
                 } else {
                     random_lijst.splice(0, 1);
-                    aantalInHetGat += 1
                     isBijGat = true;
                 }
                 xVanLetter += 25;
             }
             if (!isBijGat) {
-                x += 25;
+                x += 1;
             }
-            setTimeout(lus, snelheid);
-        } else {
-            window.requestAnimationFrame(lus);
         }
+        setTimeout(lus, snelheid)
     }
 
     function Button(text) {
@@ -149,6 +185,11 @@
             geselekteerde_letters.splice(0, geselekteerde_letters.length);
             select.innerText = "selecteer alles"
         }
+    }
+
+    function levels(levels) {
+        level = levels
+        snelheid = 30-(4*(levels-1))
     }
 </script>
 </body>
