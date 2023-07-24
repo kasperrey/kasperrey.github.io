@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Letterkuil</title>
+</head>
+<body>
+<button onclick="Button('a')" id="A">A</button><button onclick="Button('b')" id="B">B</button>
+<button onclick="Button('c')" id="C">C</button><button onclick="Button('d')" id="D">D</button>
+<button onclick="Button('e')" id="E">E</button><button onclick="Button('f')" id="F">F</button>
+<button onclick="Button('g')" id="G">G</button><button onclick="Button('h')" id="H">H</button>
+<button onclick="Button('i')" id="I">I</button><button onclick="Button('j')" id="J">J</button>
+<button onclick="Button('k')" id="K">K</button><button onclick="Button('l')" id="L">L</button>
+<button onclick="Button('m')" id="M">M</button><button onclick="Button('n')" id="N">N</button>
+<button onclick="Button('o')" id="O">O</button><button onclick="Button('p')" id="P">P</button>
+<button onclick="Button('q')" id="Q">Q</button><button onclick="Button('r')" id="R">R</button>
+<button onclick="Button('s')" id="S">S</button><button onclick="Button('t')" id="T">T</button>
+<button onclick="Button('u')" id="U">U</button><button onclick="Button('v')" id="V">V</button>
+<button onclick="Button('w')" id="W">W</button><button onclick="Button('x')" id="X">X</button>
+<button onclick="Button('y')" id="Y">Y</button><button onclick="Button('z')" id="Z">Z</button>
+<button onclick="begin()" id="Begin">Begin</button><button onclick="selectAlles()" id="select">selecteer alles</button>
+
+
+<script>
+    var canvas = document.createElement('canvas');
+    canvas.width = 1200;
+    canvas.height = 700;
+    document.body.appendChild(canvas);
+    var c = canvas.getContext('2d');
+    c.font = "20px Arial";
+    var geselekteerde_letters = [];
+    var random_lijst = [];
+    var start = false;
+    var x = 0;
+    var snelheid = 1000;
+    var aantalInHetGat = 0;
+    addEventListener("keypress", function (ev) {
+        if (ev.key === random_lijst.at(0)) {
+            random_lijst.splice(0, 1);
+            x-=25;
+            c.clearRect(0, 0, 1200, 700);
+            c.fillStyle = "#000000"
+            c.fillRect(680, 150, 1200, 200)
+            c.fillStyle = "#FFFFFF"
+            c.fillText(geselekteerde_letters.join(" "), 20, 20);
+            drawLine(800, 260, 1200, 260);
+            var xVanLetter = 1200-x;
+            for (var nRl=0; nRl<random_lijst.length; nRl++) {
+                c.fillText(random_lijst.at(nRl)+" ", xVanLetter, 240);
+                xVanLetter += 25;
+            }
+        }
+    })
+    lus();
+
+    function getRandomInt(max) {
+        return Math.floor(Math.random() * max);
+    }
+
+    function drawLine(x1, y1, x2,y2, stroke = 'white', width = 3) {
+        c.beginPath();
+        c.moveTo(x1, y1);
+        c.lineTo(x2, y2);
+        c.strokeStyle = stroke;
+        c.lineWidth = width;
+        c.stroke();
+    }
+
+    function begin() {
+        snelheid = 1000
+        var beginbutton = document.getElementById("Begin");
+        beginbutton.innerText = "Stop";
+        beginbutton.onclick = stop;
+        for (var n=0; n<26; n++){
+            random_lijst.push(geselekteerde_letters.at(getRandomInt(geselekteerde_letters.length)));
+        }
+        start = true;
+    }
+
+    function stop() {
+        var beginbutton = document.getElementById("Begin");
+        beginbutton.innerText = "Begin";
+        beginbutton.onclick = begin;
+        random_lijst = [];
+        x = 0;
+        start = false;
+    }
+
+    function lus() {
+        c.clearRect(0, 0, 1200, 700);
+        c.fillStyle = "#000000"
+        c.fillRect(680, 150, 1200, 200)
+        c.fillText(geselekteerde_letters.join(" "), 20, 20);
+        c.fillStyle = "#FFFFFF"
+        drawLine(800, 260, 1200, 260);
+        if (start) {
+            if (aantalInHetGat >= 5) {
+                snelheid = 1000
+                stop()
+            }
+            if (!random_lijst.length){
+                snelheid = snelheid*0.9
+                for (var n=0; n<26; n++){
+                    random_lijst.push(geselekteerde_letters.at(getRandomInt(geselekteerde_letters.length)));
+                }
+                x = 0
+                aantalInHetGat = 0
+            }
+            var xVanLetter = 1200-x;
+            var isBijGat = false;
+            for (var nRl=0; nRl<random_lijst.length; nRl++) {
+                if (xVanLetter > 775) {
+                    c.fillText(random_lijst.at(nRl) + " ", xVanLetter, 240);
+                } else {
+                    random_lijst.splice(0, 1);
+                    aantalInHetGat += 1
+                    isBijGat = true;
+                }
+                xVanLetter += 25;
+            }
+            if (!isBijGat) {
+                x += 25;
+            }
+            setTimeout(lus, snelheid);
+        } else {
+            window.requestAnimationFrame(lus);
+        }
+    }
+
+    function Button(text) {
+        var indexVanText = geselekteerde_letters.indexOf(text);
+        if (indexVanText < 0) {
+            geselekteerde_letters.push(text);
+        } else {
+            geselekteerde_letters.splice(indexVanText, 1);
+        }
+    }
+
+    function selectAlles() {
+        var select = document.getElementById("select")
+        var staaterin = geselekteerde_letters.length;
+        if (!staaterin) {
+            for (var l=97; l<=122; l++) {
+                geselekteerde_letters.push(String.fromCharCode(l));
+            }
+            console.log(geselekteerde_letters)
+            select.innerText = "maak leeg"
+        } else {
+            geselekteerde_letters.splice(0, geselekteerde_letters.length);
+            select.innerText = "selecteer alles"
+        }
+    }
+</script>
+</body>
+</html>
