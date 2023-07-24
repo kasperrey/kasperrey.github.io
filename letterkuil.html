@@ -33,12 +33,18 @@
     var random_lijst = [];
     var start = false;
     var isBijGat = false;
+    var dKey = "letterkuil-diamanten"
+    if (!localStorage.getItem(dKey)) {
+        localStorage.setItem(dKey, "0")
+    }
+    var diamanten = parseInt(localStorage.getItem(dKey))
     var x = 0;
     var snelheid = 20;
     var pac1 = new Image()
     var pac2 = new Image()
     var pac3 = new Image()
     var pac4 = new Image()
+    var hoed = new Image()
     var pac = 4
     var aantal_tekenen = 0
     var level = 1
@@ -46,10 +52,14 @@
     pac2.src = "pacman2.png"
     pac3.src = "pacman3.png"
     pac4.src = "pacman4.png"
+    hoed.src = "hogehoed.png"
+    var puut = new Audio("Puut-kort.mp3")
     addEventListener("keyup", function (ev) {
         if (ev.key === random_lijst.at(0)) {
             random_lijst.splice(0, 1);
             x-=25;
+        } else {
+            puut.play()
         }
     })
     lus();
@@ -95,37 +105,46 @@
         c.fillStyle = "#000000"
         c.fillRect(680, 150, 520, 200)
         c.fillText(geselekteerde_letters.join(" "), 20, 20);
+        c.fillText(diamanten+"/20", 500, 20)
         c.fillText("level: "+level, 1100, 130)
         c.fillStyle = "#FFFFFF"
         drawLine(800, 260, 1200, 260);
-        if (pac === 1) {
-            c.drawImage(pac1, 575, 150)
-            aantal_tekenen += 1
-            if (aantal_tekenen === 20) {
-                pac = 4
-                aantal_tekenen = 0
-            }
-        } else if (pac === 2) {
-            c.drawImage(pac3, 575, 150)
-            aantal_tekenen += 1
-            if (aantal_tekenen === 20) {
-                pac = 1
-                aantal_tekenen = 0
-            }
-        } else if (pac === 3) {
-            c.drawImage(pac4, 575, 150)
-            aantal_tekenen += 1
-            if (aantal_tekenen === 20) {
-                pac = 2
-                aantal_tekenen = 0
-            }
-        } else if (pac === 4) {
-            c.drawImage(pac2, 575, 150)
-            aantal_tekenen += 1
-            if (aantal_tekenen === 20) {
-                pac = 3
-                aantal_tekenen = 0
-            }
+        switch (pac) {
+            case 1 :
+                c.drawImage(pac1, 575, 150)
+                aantal_tekenen += 1
+                if (aantal_tekenen === 20) {
+                    pac = 4
+                    aantal_tekenen = 0
+                }
+                break
+            case 2:
+                c.drawImage(pac3, 575, 150)
+                aantal_tekenen += 1
+                if (aantal_tekenen === 20) {
+                    pac = 1
+                    aantal_tekenen = 0
+                }
+                break
+            case 3:
+                c.drawImage(pac4, 575, 150)
+                aantal_tekenen += 1
+                if (aantal_tekenen === 20) {
+                    pac = 2
+                    aantal_tekenen = 0
+                }
+                break
+            case 4:
+                c.drawImage(pac2, 575, 150)
+                aantal_tekenen += 1
+                if (aantal_tekenen === 20) {
+                    pac = 3
+                    aantal_tekenen = 0
+                }
+                break
+        }
+        if (parseInt(diamanten) > 20) {
+            c.drawImage(hoed, 624, 13)
         }
         if (start) {
             if (isBijGat) {
@@ -145,6 +164,8 @@
                 x = 0
                 isBijGat = false
                 level += 1
+                diamanten += 1
+                localStorage.setItem(dKey, diamanten.toString())
             }
             var xVanLetter = 1200 - x;
             for (var nRl = 0; nRl < random_lijst.length; nRl++) {
