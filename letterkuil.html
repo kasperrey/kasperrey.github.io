@@ -20,12 +20,12 @@
 <button onclick="Button('y')" id="Y">Y</button><button onclick="Button('z')" id="Z">Z</button>
 <button onclick="begin()" id="Begin">Begin</button><button onclick="selectAlles()" id="select">selecteer alles</button>
 <button onclick="levels(1)">level 1</button><button onclick="levels(3)">level 3</button><button onclick="levels(6)">level 6</button>
-<button onclick="inloggen()">andere speler</button>
+<button onclick="inloggen()">andere speler</button><button onclick="deleteSpeler()">verwijder speler</button>
 
 
 <script>
-    var lijst_record = new Map()
-    var lijst_diamanten = new Map()
+    var map_record = new Map()
+    var map_diamanten = new Map()
     var input = document.createElement("input")
     var b = document.createElement("button")
     b.innerText = "ok"
@@ -40,13 +40,13 @@
         localStorage.removeItem("letterkuil-diamanten")
     }
     if (!localStorage.getItem(dKey)) {
-        localStorage.setItem(dKey, JSON.stringify(Array.from(lijst_diamanten.entries())))
+        localStorage.setItem(dKey, JSON.stringify(Array.from(map_diamanten.entries())))
     }
     if (!localStorage.getItem(lKey)) {
-        localStorage.setItem(lKey, JSON.stringify(Array.from(lijst_record.entries())))
+        localStorage.setItem(lKey, JSON.stringify(Array.from(map_record.entries())))
     }
-    lijst_diamanten = new Map(JSON.parse(localStorage.getItem(dKey)))
-    lijst_record = new Map(JSON.parse(localStorage.getItem(lKey)))
+    map_diamanten = new Map(JSON.parse(localStorage.getItem(dKey)))
+    map_record = new Map(JSON.parse(localStorage.getItem(lKey)))
 
     var canvas = document.createElement('canvas');
     canvas.width = 1500;
@@ -132,14 +132,14 @@
         c.fillRect(680, 150, 520, 200)
         c.fillText(geselekteerde_letters.join(" "), 20, 20);
         c.fillText("level: "+level, 1100, 130)
+        for (var key of map_record.keys()) {
+            c.fillText(key+": "+map_record.get(key), 1220, yVanRecord)
+            yVanRecord+=20
+        }
+        yVanRecord=100
         if (naam) {
             c.fillText(naam, 20, 45)
-            c.fillText(lijst_diamanten.get(naam)+"/20", 500, 20)
-            for (var key of lijst_record.keys()) {
-                c.fillText(key+": "+lijst_record.get(key), 1220, yVanRecord)
-                yVanRecord+=20
-            }
-            yVanRecord=100
+            c.fillText(map_diamanten.get(naam)+"/20", 500, 20)
         }
         c.fillStyle = "#FFFFFF"
         drawLine(800, 260, 1200, 260);
@@ -177,7 +177,7 @@
                 }
                 break
         }
-        if (lijst_diamanten.get(naam) >= 20) {
+        if (map_diamanten.get(naam) >= 20) {
             c.drawImage(hoed, 624, 13)
         }
         if (start) {
@@ -197,12 +197,12 @@
                     isBijGat = false
                     levels(level + 1)
                     if (geselekteerde_letters.length > 2) {
-                        lijst_diamanten.set(naam, lijst_diamanten.get(naam)+1)
-                        localStorage.setItem(dKey, JSON.stringify(Array.from(lijst_diamanten.entries())))
+                        map_diamanten.set(naam, map_diamanten.get(naam)+1)
+                        localStorage.setItem(dKey, JSON.stringify(Array.from(map_diamanten.entries())))
                     }
-                    if (lijst_record.get(naam) < level) {
-                        lijst_record.set(naam, level)
-                        localStorage.setItem(lKey, JSON.stringify(Array.from(lijst_record.entries())))
+                    if (map_record.get(naam) < level) {
+                        map_record.set(naam, level)
+                        localStorage.setItem(lKey, JSON.stringify(Array.from(map_record.entries())))
                     }
                 }
                 var xVanLetter = 1200 - x;
@@ -251,12 +251,10 @@
     }
 
     function inloggen() {
-        naam = null
         input = document.createElement("input")
         b = document.createElement("button")
         b.innerText = "ok"
         b.onclick = ok
-        console.log(b.position)
         input.value = "naam"
         document.body.appendChild(input)
         document.body.appendChild(b)
@@ -266,17 +264,31 @@
         naam = input.value
         b.remove()
         input.remove()
-        for (var key of lijst_record.keys()) {
-            console.log(key)
-            if (key === naam) {
-                console.log(key)
-                return;
-            }
+        if (!map_record.has(naam)) {
+            map_record.set(naam, 1)
+            map_diamanten.set(naam, 0)
+            localStorage.setItem(lKey, JSON.stringify(Array.from(map_record.entries())))
+            localStorage.setItem(dKey, JSON.stringify(Array.from(map_diamanten.entries())))
         }
-        lijst_record.set(naam, 1)
-        lijst_diamanten.set(naam, 0)
-        localStorage.setItem(lKey, JSON.stringify(Array.from(lijst_record.entries())))
-        localStorage.setItem(dKey, JSON.stringify(Array.from(lijst_diamanten.entries())))
+    }
+
+    function deleteSpeler() {
+        input = document.createElement("input")
+        b = document.createElement("button")
+        b.innerText = "ok"
+        b.onclick = delete_button
+        input.value = "speler"
+        document.body.appendChild(input)
+        document.body.appendChild(b)
+    }
+
+    function delete_button() {
+        map_record.delete(input.value)
+        map_diamanten.delete(input.value)
+        localStorage.setItem(dKey, JSON.stringify(Array.from(map_diamanten.entries())))
+        localStorage.setItem(lKey, JSON.stringify(Array.from(map_record.entries())))
+        b.remove()
+        input.remove()
     }
 </script>
 </body>
