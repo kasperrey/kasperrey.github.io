@@ -20,9 +20,36 @@
 <button onclick="Button('y')" id="Y">Y</button><button onclick="Button('z')" id="Z">Z</button>
 <button onclick="begin()" id="Begin">Begin</button><button onclick="selectAlles()" id="select">selecteer alles</button>
 <button onclick="levels(1)">level 1</button><button onclick="levels(3)">level 3</button><button onclick="levels(6)">level 6</button>
+<button onclick="inloggen()">andere speler</button>
 
 
 <script>
+    var lijst_record = new Map()
+    var lijst_diamanten = new Map()
+    var input = document.createElement("input")
+    var b = document.createElement("button")
+    b.innerText = "ok"
+    b.onclick = ok
+    input.value = "naam"
+    document.body.appendChild(input)
+    document.body.appendChild(b)
+
+    var dKey = "letterkuil-lijst_diamanten"
+    var lKey = "letterkuil-lijst_records"
+    localStorage.removeItem(lKey)
+    localStorage.removeItem(dKey)
+    if (localStorage.getItem("letterkuil-diamanten")) {
+        localStorage.removeItem("letterkuil-diamanten")
+    }
+    if (!localStorage.getItem(dKey)) {
+        localStorage.setItem(dKey, JSON.stringify(Array.from(lijst_diamanten.entries())))
+    }
+    if (!localStorage.getItem(lKey)) {
+        localStorage.setItem(lKey, JSON.stringify(Array.from(lijst_record.entries())))
+    }
+    lijst_diamanten = new Map(JSON.parse(localStorage.getItem(dKey)))
+    lijst_record = new Map(JSON.parse(localStorage.getItem(lKey)))
+
     var canvas = document.createElement('canvas');
     canvas.width = 1500;
     canvas.height = 700;
@@ -33,12 +60,9 @@
     var random_lijst = [];
     var start = false;
     var isBijGat = false;
-    var dKey = "letterkuil-diamanten"
-    if (!localStorage.getItem(dKey)) {
-        localStorage.setItem(dKey, "0")
-    }
-    var diamanten = parseInt(localStorage.getItem(dKey))
     var x = 0;
+    var yVanRecord = 100
+    var naam;
     var snelheid = 20;
     var pac1 = new Image()
     var pac2 = new Image()
@@ -48,6 +72,7 @@
     var pac = 4
     var aantal_tekenen = 0
     var level = 1
+    levels(1)
     pac1.src = "pacman.png"
     pac2.src = "pacman2.png"
     pac3.src = "pacman3.png"
@@ -59,7 +84,9 @@
             random_lijst.splice(0, 1);
             x-=25;
         } else {
-            puut.play()
+            if (naam) {
+                puut.play()
+            }
         }
     })
     lus();
@@ -78,13 +105,15 @@
     }
 
     function begin() {
-        var beginbutton = document.getElementById("Begin");
-        beginbutton.innerText = "Stop";
-        beginbutton.onclick = stop;
-        for (var n=0; n<26; n++){
-            random_lijst.push(geselekteerde_letters.at(getRandomInt(geselekteerde_letters.length)));
+        if (geselekteerde_letters.length > 0) {
+            var beginbutton = document.getElementById("Begin");
+            beginbutton.innerText = "Stop";
+            beginbutton.onclick = stop;
+            for (var n = 0; n < 26; n++) {
+                random_lijst.push(geselekteerde_letters.at(getRandomInt(geselekteerde_letters.length)));
+            }
+            start = true;
         }
-        start = true;
     }
 
     function stop() {
@@ -94,19 +123,25 @@
         random_lijst = [];
         x = 0;
         start = false;
-        level = 1
-        snelheid = 30
+        levels(1)
     }
 
     function lus() {
-        c.clearRect(0, 0, 1200, 700);
+        c.clearRect(0, 0, 1500, 700);
         c.fillStyle = "#868686"
-        c.fillRect(1095, 110, 80, 25)
+        c.fillRect(1095, 110, 100, 25)
         c.fillStyle = "#000000"
         c.fillRect(680, 150, 520, 200)
         c.fillText(geselekteerde_letters.join(" "), 20, 20);
-        c.fillText(diamanten+"/20", 500, 20)
         c.fillText("level: "+level, 1100, 130)
+        if (naam) {
+            c.fillText(lijst_diamanten.get(naam)+"/20", 500, 20)
+            for (var key of lijst_record.keys()) {
+                c.fillText(key+": "+lijst_record.get(key), 1220, yVanRecord)
+                yVanRecord+=20
+            }
+            yVanRecord=100
+        }
         c.fillStyle = "#FFFFFF"
         drawLine(800, 260, 1200, 260);
         switch (pac) {
@@ -143,44 +178,48 @@
                 }
                 break
         }
-        if (parseInt(diamanten) > 20) {
+        if (lijst_diamanten.get(naam) >= 20) {
             c.drawImage(hoed, 624, 13)
         }
         if (start) {
-            if (isBijGat) {
-                snelheid = snelheid+2
-                for (var r = 0; r < 26; r++) {
-                    random_lijst.push(geselekteerde_letters.at(getRandomInt(geselekteerde_letters.length)));
+                if (isBijGat) {
+                    for (var r = 0; r < 26; r++) {
+                        random_lijst.push(geselekteerde_letters.at(getRandomInt(geselekteerde_letters.length)));
+                    }
+                    x = 0
+                    isBijGat = false
+                    levels(level - 1)
                 }
-                x = 0
-                isBijGat = false
-                level -= 1
-            }
-            if (!random_lijst.length) {
-                snelheid = snelheid-4
-                for (var n = 0; n < 26; n++) {
-                    random_lijst.push(geselekteerde_letters.at(getRandomInt(geselekteerde_letters.length)));
+                if (!random_lijst.length) {
+                    for (var n = 0; n < 26; n++) {
+                        random_lijst.push(geselekteerde_letters.at(getRandomInt(geselekteerde_letters.length)));
+                    }
+                    x = 0
+                    isBijGat = false
+                    levels(level + 1)
+                    if (geselekteerde_letters.length > 2) {
+                        lijst_diamanten.set(naam, lijst_diamanten.get(naam)+1)
+                        localStorage.setItem(dKey, JSON.stringify(Array.from(lijst_diamanten.entries())))
+                    }
+                    if (lijst_record.get(naam) < level) {
+                        lijst_record.set(naam, level)
+                        localStorage.setItem(lKey, JSON.stringify(Array.from(lijst_record.entries())))
+                    }
                 }
-                x = 0
-                isBijGat = false
-                level += 1
-                diamanten += 1
-                localStorage.setItem(dKey, diamanten.toString())
-            }
-            var xVanLetter = 1200 - x;
-            for (var nRl = 0; nRl < random_lijst.length; nRl++) {
-                if (xVanLetter > 775) {
-                    c.fillText(random_lijst.at(nRl) + " ", xVanLetter, 240);
-                } else {
-                    random_lijst.splice(0, 1);
-                    isBijGat = true;
+                var xVanLetter = 1200 - x;
+                for (var nRl = 0; nRl < random_lijst.length; nRl++) {
+                    if (xVanLetter > 775) {
+                        c.fillText(random_lijst.at(nRl) + " ", xVanLetter, 240);
+                    } else {
+                        random_lijst.splice(0, 1);
+                        isBijGat = true;
+                    }
+                    xVanLetter += 25;
                 }
-                xVanLetter += 25;
+                if (!isBijGat) {
+                    x += 1;
+                }
             }
-            if (!isBijGat) {
-                x += 1;
-            }
-        }
         setTimeout(lus, snelheid)
     }
 
@@ -195,12 +234,11 @@
 
     function selectAlles() {
         var select = document.getElementById("select")
-        var staaterin = geselekteerde_letters.length;
-        if (!staaterin) {
+        if (select.innerText === "selecteer alles") {
+            geselekteerde_letters.splice(0, geselekteerde_letters.length)
             for (var l=97; l<=122; l++) {
                 geselekteerde_letters.push(String.fromCharCode(l));
             }
-            console.log(geselekteerde_letters)
             select.innerText = "maak leeg"
         } else {
             geselekteerde_letters.splice(0, geselekteerde_letters.length);
@@ -210,7 +248,36 @@
 
     function levels(levels) {
         level = levels
-        snelheid = 30-(4*(levels-1))
+        snelheid = 36-(4*(levels-1))
+    }
+
+    function inloggen() {
+        naam = null
+        input = document.createElement("input")
+        b = document.createElement("button")
+        b.innerText = "ok"
+        b.onclick = ok
+        console.log(b.position)
+        input.value = "naam"
+        document.body.appendChild(input)
+        document.body.appendChild(b)
+    }
+
+    function ok() {
+        naam = input.value
+        b.remove()
+        input.remove()
+        for (var key of lijst_record.keys()) {
+            console.log(key)
+            if (key === naam) {
+                console.log(key)
+                return;
+            }
+        }
+        lijst_record.set(naam, 1)
+        lijst_diamanten.set(naam, 0)
+        localStorage.setItem(lKey, JSON.stringify(Array.from(lijst_record.entries())))
+        localStorage.setItem(dKey, JSON.stringify(Array.from(lijst_diamanten.entries())))
     }
 </script>
 </body>
