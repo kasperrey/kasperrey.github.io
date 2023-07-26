@@ -36,8 +36,6 @@
 
     var dKey = "letterkuil-lijst_diamanten"
     var lKey = "letterkuil-lijst_records"
-    localStorage.removeItem(lKey)
-    localStorage.removeItem(dKey)
     if (localStorage.getItem("letterkuil-diamanten")) {
         localStorage.removeItem("letterkuil-diamanten")
     }
@@ -135,6 +133,7 @@
         c.fillText(geselekteerde_letters.join(" "), 20, 20);
         c.fillText("level: "+level, 1100, 130)
         if (naam) {
+            c.fillText(naam, 20, 45)
             c.fillText(lijst_diamanten.get(naam)+"/20", 500, 20)
             for (var key of lijst_record.keys()) {
                 c.fillText(key+": "+lijst_record.get(key), 1220, yVanRecord)
