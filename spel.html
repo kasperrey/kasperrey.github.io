@@ -45,7 +45,7 @@
   var naam  = Array.from(geselecteerd_persoon.keys()).at(0).toString()
   var isBijGat = false
   var level;
-  var snelheid;
+  var versnelling = 0.1;
   var start = false
   levels(1)
   var button = document.createElement("button")
@@ -119,7 +119,7 @@
       case 1 :
         c.drawImage(pac1, 575, 150)
         aantal_tekenen += 1
-        if (aantal_tekenen === 20) {
+        if (aantal_tekenen === 60) {
           pac = 4
           aantal_tekenen = 0
         }
@@ -127,7 +127,7 @@
       case 2:
         c.drawImage(pac3, 575, 150)
         aantal_tekenen += 1
-        if (aantal_tekenen === 20) {
+        if (aantal_tekenen === 60) {
           pac = 1
           aantal_tekenen = 0
         }
@@ -135,7 +135,7 @@
       case 3:
         c.drawImage(pac4, 575, 150)
         aantal_tekenen += 1
-        if (aantal_tekenen === 20) {
+        if (aantal_tekenen === 60) {
           pac = 2
           aantal_tekenen = 0
         }
@@ -143,7 +143,7 @@
       case 4:
         c.drawImage(pac2, 575, 150)
         aantal_tekenen += 1
-        if (aantal_tekenen === 20) {
+        if (aantal_tekenen === 60) {
           pac = 3
           aantal_tekenen = 0
         }
@@ -189,10 +189,10 @@
         xVanLetter += 25;
       }
       if (!isBijGat) {
-        x += 1;
+        x += versnelling;
       }
     }
-    setTimeout(lus, snelheid)
+    window.requestAnimationFrame(lus)
   }
 
   function drawLine(x1, y1, x2,y2, stroke = 'white', width = 3) {
@@ -210,7 +210,7 @@
 
   function levels(levels) {
       level = levels
-      snelheid = 36-(4*(levels-1))
+      versnelling = 0.2+0.2*levels
   }
 
   function begin() {
