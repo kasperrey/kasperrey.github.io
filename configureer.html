@@ -11,6 +11,9 @@
   var geselecteerdeLetters = []
   var alfabet = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"]
   var persoon = new Map(JSON.parse(localStorage.getItem("letterkuil-geselekteerd_persoon")))
+  if (!persoon.get(Array.from(persoon.keys()).at(0).toString())) {
+      window.location.assign("letterkuil.html")
+  }
   var canvas = document.createElement('canvas');
   canvas.width = 1500;
   canvas.height = 700;

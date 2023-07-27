@@ -20,8 +20,7 @@
   }
   var geselecteerd_persoon = new Map(JSON.parse(localStorage.getItem(selfKey)))
   var geselecteerdeLetters = JSON.parse(localStorage.getItem("letterkuil-geselecteerde_letters"))
-  console.log(geselecteerdeLetters)
-  if (!geselecteerdeLetters) {
+  if (!geselecteerdeLetters.length) {
       window.location.assign("configureer.html")
   }
   var canvas = document.createElement('canvas');
