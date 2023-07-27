@@ -41,6 +41,7 @@
   pac3.src = "pacman3.png"
   pac4.src = "pacman4.png"
   hoed.src = "hogehoed.png"
+  var puut = new Audio("Puut-kort.mp3")
   var naam  = Array.from(geselecteerd_persoon.keys()).at(0).toString()
   var isBijGat = false
   var level;
@@ -91,6 +92,8 @@
       if (ev.key === random_lijst.at(0)) {
           random_lijst.splice(0, 1);
           x-=25;
+      } else {
+          puut.play()
       }
   })
   begin()
