@@ -57,6 +57,33 @@
       window.location.assign("configureer.html")
   }
   document.body.appendChild(button)
+  button = document.createElement("button")
+  button.style.position = "absolute"
+  button.style.top = "20px"
+  button.style.left = "1000px"
+  button.innerText = "start level 1"
+  button.onclick = function () {
+      levels(1)
+  }
+  document.body.appendChild(button)
+  button = document.createElement("button")
+  button.style.position = "absolute"
+  button.style.top = "20px"
+  button.style.left = "1100px"
+  button.innerText = "start level 3"
+  button.onclick = function () {
+      levels(3)
+  }
+  document.body.appendChild(button)
+  button = document.createElement("button")
+  button.style.position = "absolute"
+  button.style.top = "20px"
+  button.style.left = "1200px"
+  button.innerText = "start level 6"
+  button.onclick = function () {
+      levels(6)
+  }
+  document.body.appendChild(button)
   addEventListener("click", function () {
       start = true
   })
