@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Letterkuil</title>
+</head>
+<body>
+<script>
+  var buttons = []
+  var x = 20
+  var geselecteerdeLetters = []
+  var alfabet = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"]
+  var persoon = new Map(JSON.parse(localStorage.getItem("letterkuil-geselekteerd_persoon")))
+  var canvas = document.createElement('canvas');
+  canvas.width = 1500;
+  canvas.height = 700;
+  document.body.appendChild(canvas);
+  var c = canvas.getContext('2d');
+  c.font = "30px Arial"
+  c.fillText(Array.from(persoon.keys()).at(0).toString().replace("letterkuil-", ""), 20, 20)
+  c.fillText("hoogste level: "+persoon.get(Array.from(persoon.keys()).at(0).toString()).at(0), 400, 20)
+  c.fillText("diamanten: "+persoon.get(Array.from(persoon.keys()).at(0).toString()).at(1), 700, 20)
+  for (var letter of alfabet) {
+      var button = document.createElement("button")
+      button.style.position = "absolute"
+      button.style.top = "100px"
+      button.style.left = x.toString()+"px"
+      button.innerText = letter
+      button.aan = false
+      button.style.background = "#bbbbbb"
+      button.onclick = function (ev) {
+          if (ev.currentTarget.aan) {
+              geselecteerdeLetters.splice(geselecteerdeLetters.indexOf(ev.currentTarget.innerText), 1)
+              ev.currentTarget.style.background = "#bbbbbb"
+              ev.currentTarget.aan = false
+          } else {
+              geselecteerdeLetters.push(ev.currentTarget.innerText)
+              ev.currentTarget.style.background = "#0d8600"
+              ev.currentTarget.aan = true
+          }
+          localStorage.setItem("letterkuil-geselecteerde_letters", JSON.stringify(geselecteerdeLetters))
+      }
+      buttons.push(button)
+      document.body.appendChild(button)
+      x+=25
+  }
+  button = document.createElement("button")
+  button.innerText = "selecteer alle leters"
+  button.style.position = "absolute"
+  button.style.top = "100px"
+  button.style.left = x.toString()+"px"
+  button.onclick = selectAlles
+  document.body.appendChild(button)
+  button = document.createElement("button")
+  button.innerText = "start"
+  button.style.font = "100px Arial"
+  button.style.position = "absolute"
+  button.style.top = "450px"
+  button.style.left = "500px"
+  button.onclick = function () {
+      window.location.assign("spel.html")
+  }
+  document.body.appendChild(button)
+  button = document.createElement("button")
+  button.innerText = "wissel van speler"
+  button.style.font = "60px Arial"
+  button.style.position = "absolute"
+  button.style.top = "480px"
+  button.style.left = "1000px"
+  button.onclick = function () {
+      window.location.assign("letterkuil.html")
+  }
+  document.body.appendChild(button)
+
+  function selectAlles(ev) {
+      geselecteerdeLetters = []
+      if (ev.currentTarget.innerText === "selecteer alle leters") {
+          for (var letter of alfabet) {
+              geselecteerdeLetters.push(letter)
+          }
+          for (var b of buttons) {
+              b.aan = true
+              b.style.background = "#0d8600"
+          }
+          ev.currentTarget.innerText = "maak leeg"
+      } else {
+          for (var but of buttons) {
+              but.aan = false
+              but.style.background = "#868686"
+          }
+          ev.currentTarget.innerText = "selecteer alle leters"
+      }
+      localStorage.setItem("letterkuil-geselecteerde_letters", JSON.stringify(geselecteerdeLetters))
+  }
+</script>
+</body>
+</html>

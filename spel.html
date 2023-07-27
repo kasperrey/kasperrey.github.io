@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Letterkuil</title>
+</head>
+<body>
+<script>
+  var x = 0
+  var yVanRecord = 100
+  var lijst_personen = []
+  var personen = []
+  var random_lijst = [];
+
+  var lijstKey = "letterkuil-lijst_personen"
+  var selfKey = "letterkuil-geselekteerd_persoon"
+  lijst_personen = JSON.parse(localStorage.getItem(lijstKey))
+  for (var persoon of lijst_personen) {
+    personen.push(JSON.parse(localStorage.getItem(persoon)))
+  }
+  var geselecteerd_persoon = new Map(JSON.parse(localStorage.getItem(selfKey)))
+  var geselecteerdeLetters = JSON.parse(localStorage.getItem("letterkuil-geselecteerde_letters"))
+  console.log(geselecteerdeLetters)
+  if (!geselecteerdeLetters) {
+      window.location.assign("configureer.html")
+  }
+  var canvas = document.createElement('canvas');
+  canvas.width = 1500;
+  canvas.height = 700;
+  document.body.appendChild(canvas);
+  var c = canvas.getContext('2d');
+  c.font = "20px Arial"
+  var pac1 = new Image()
+  var pac2 = new Image()
+  var pac3 = new Image()
+  var pac4 = new Image()
+  var hoed = new Image()
+  var pac = 4
+  var aantal_tekenen = 0
+  pac1.src = "pacman.png"
+  pac2.src = "pacman2.png"
+  pac3.src = "pacman3.png"
+  pac4.src = "pacman4.png"
+  hoed.src = "hogehoed.png"
+  var naam  = Array.from(geselecteerd_persoon.keys()).at(0).toString()
+  var isBijGat = false
+  var level;
+  var snelheid;
+  var start = false
+  levels(1)
+  var button = document.createElement("button")
+  button.style.position = "absolute"
+  button.style.top = "700px"
+  button.style.left = "1000px"
+  button.style.font = "30px Arial"
+  button.innerText = "stop"
+  button.onclick = function () {
+      window.location.assign("configureer.html")
+  }
+  document.body.appendChild(button)
+  addEventListener("click", function () {
+      start = true
+  })
+  addEventListener("keyup", function (ev) {
+      if (ev.key === random_lijst.at(0)) {
+          random_lijst.splice(0, 1);
+          x-=25;
+      }
+  })
+  begin()
+
+
+  function lus() {
+    c.clearRect(0, 0, 1500, 700);
+    c.fillStyle = "#868686"
+    c.fillRect(1095, 110, 100, 25)
+    c.fillStyle = "#000000"
+    c.fillRect(680, 150, 520, 200)
+    c.fillText("level: "+level, 1100, 130)
+    for (var key of lijst_personen) {
+      c.fillText(key.toString().replace("letterkuil-", "")+": "+personen.at(lijst_personen.indexOf(key)).at(0), 1220, yVanRecord)
+      yVanRecord+=20
+    }
+    yVanRecord=100
+    c.fillText(naam.replace("letterkuil-", ""), 20, 45)
+    c.fillText("diamanten: "+geselecteerd_persoon.get(naam).at(1)+"/20", 500, 20)
+    c.fillStyle = "#FFFFFF"
+    drawLine(800, 260, 1200, 260);
+    switch (pac) {
+      case 1 :
+        c.drawImage(pac1, 575, 150)
+        aantal_tekenen += 1
+        if (aantal_tekenen === 20) {
+          pac = 4
+          aantal_tekenen = 0
+        }
+        break
+      case 2:
+        c.drawImage(pac3, 575, 150)
+        aantal_tekenen += 1
+        if (aantal_tekenen === 20) {
+          pac = 1
+          aantal_tekenen = 0
+        }
+        break
+      case 3:
+        c.drawImage(pac4, 575, 150)
+        aantal_tekenen += 1
+        if (aantal_tekenen === 20) {
+          pac = 2
+          aantal_tekenen = 0
+        }
+        break
+      case 4:
+        c.drawImage(pac2, 575, 150)
+        aantal_tekenen += 1
+        if (aantal_tekenen === 20) {
+          pac = 3
+          aantal_tekenen = 0
+        }
+        break
+    }
+    if (geselecteerd_persoon.get(naam).at(1) >= 20) {
+      c.drawImage(hoed, 624, 13)
+    }
+    if (start) {
+      if (isBijGat) {
+        for (var r = 0; r < 26; r++) {
+            random_lijst.push(geselecteerdeLetters.at(getRandomInt(geselecteerdeLetters.length)));
+        }
+        x = 0
+        isBijGat = false
+        levels(level - 1)
+      }
+      if (!random_lijst.length) {
+        for (var n = 0; n < 26; n++) {
+          random_lijst.push(geselecteerdeLetters.at(getRandomInt(geselecteerdeLetters.length)));
+        }
+        x = 0
+        levels(level + 1)
+        if (geselecteerdeLetters.length > 2) {
+            personen[indexVan(personen, geselecteerd_persoon.get(naam))][1] = personen.at(indexVan(personen, geselecteerd_persoon.get(naam))).at(1)+1
+            geselecteerd_persoon.set(naam, [geselecteerd_persoon.get(naam).at(0), geselecteerd_persoon.get(naam).at(1)+1])
+            localStorage.setItem(naam, JSON.stringify(personen.at(indexVan(personen, geselecteerd_persoon.get(naam)))))
+        }
+        if (geselecteerd_persoon.get(naam).at(0) < level) {
+            personen[indexVan(personen, geselecteerd_persoon.get(naam))][0] = personen.at(indexVan(personen, geselecteerd_persoon.get(naam))).at(0)+1
+            geselecteerd_persoon.set(naam, [geselecteerd_persoon.get(naam).at(0)+1, geselecteerd_persoon.get(naam).at(1)])
+            localStorage.setItem(naam, JSON.stringify(personen.at(indexVan(personen, geselecteerd_persoon.get(naam)))))
+        }
+      }
+      var xVanLetter = 1200 - x;
+      for (var nRl = 0; nRl < random_lijst.length; nRl++) {
+        if (xVanLetter > 775) {
+          c.fillText(random_lijst.at(nRl) + " ", xVanLetter, 240);
+        } else {
+          random_lijst.splice(0, 1);
+          isBijGat = true;
+        }
+        xVanLetter += 25;
+      }
+      if (!isBijGat) {
+        x += 1;
+      }
+    }
+    setTimeout(lus, snelheid)
+  }
+
+  function drawLine(x1, y1, x2,y2, stroke = 'white', width = 3) {
+      c.beginPath();
+      c.moveTo(x1, y1);
+      c.lineTo(x2, y2);
+      c.strokeStyle = stroke;
+      c.lineWidth = width;
+      c.stroke();
+  }
+
+  function getRandomInt(max) {
+      return Math.floor(Math.random() * max);
+  }
+
+  function levels(levels) {
+      level = levels
+      snelheid = 36-(4*(levels-1))
+  }
+
+  function begin() {
+      for (var n = 0; n < 26; n++) {
+          random_lijst.push(geselecteerdeLetters.at(getRandomInt(geselecteerdeLetters.length)));
+      }
+      lus()
+  }
+
+  function indexVan(lijst, obj) {
+      for (var i = 0; i < lijst.length; i++) {
+          if (lijst[i][0] === obj[0] && lijst[i][1] === obj[1]) {
+              return i
+          }
+      }
+      return -1
+  }
+</script>
+</body>
+</html>

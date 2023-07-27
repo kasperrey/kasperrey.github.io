@@ -5,290 +5,129 @@
     <title>Letterkuil</title>
 </head>
 <body>
-<button onclick="Button('a')" id="A">A</button><button onclick="Button('b')" id="B">B</button>
-<button onclick="Button('c')" id="C">C</button><button onclick="Button('d')" id="D">D</button>
-<button onclick="Button('e')" id="E">E</button><button onclick="Button('f')" id="F">F</button>
-<button onclick="Button('g')" id="G">G</button><button onclick="Button('h')" id="H">H</button>
-<button onclick="Button('i')" id="I">I</button><button onclick="Button('j')" id="J">J</button>
-<button onclick="Button('k')" id="K">K</button><button onclick="Button('l')" id="L">L</button>
-<button onclick="Button('m')" id="M">M</button><button onclick="Button('n')" id="N">N</button>
-<button onclick="Button('o')" id="O">O</button><button onclick="Button('p')" id="P">P</button>
-<button onclick="Button('q')" id="Q">Q</button><button onclick="Button('r')" id="R">R</button>
-<button onclick="Button('s')" id="S">S</button><button onclick="Button('t')" id="T">T</button>
-<button onclick="Button('u')" id="U">U</button><button onclick="Button('v')" id="V">V</button>
-<button onclick="Button('w')" id="W">W</button><button onclick="Button('x')" id="X">X</button>
-<button onclick="Button('y')" id="Y">Y</button><button onclick="Button('z')" id="Z">Z</button>
-<button onclick="begin()" id="Begin">Begin</button><button onclick="selectAlles()" id="select">selecteer alles</button>
-<button onclick="levels(1)">level 1</button><button onclick="levels(3)">level 3</button><button onclick="levels(6)">level 6</button>
-<button onclick="inloggen()">andere speler</button><button onclick="deleteSpeler()">verwijder speler</button>
-
-
 <script>
-    var map_record = new Map()
-    var map_diamanten = new Map()
-    var input = document.createElement("input")
-    var b = document.createElement("button")
-    b.innerText = "ok"
-    b.onclick = ok
-    input.value = "naam"
-    document.body.appendChild(input)
-    document.body.appendChild(b)
+    var lijst_personen = []
+    var personen = []
+    var self = new Map()
 
-    var dKey = "letterkuil-lijst_diamanten"
-    var lKey = "letterkuil-lijst_records"
-    if (localStorage.getItem("letterkuil-diamanten")) {
-        localStorage.removeItem("letterkuil-diamanten")
+    var lijstKey = "letterkuil-lijst_personen"
+    var selfKey = "letterkuil-geselekteerd_persoon"
+    localStorage.removeItem("letterkuil-lijst_records")
+    localStorage.removeItem("letterkuil-lijst_diamanten")
+    if (!localStorage.getItem(lijstKey)) {
+        localStorage.setItem(lijstKey, JSON.stringify(lijst_personen))
     }
-    if (!localStorage.getItem(dKey)) {
-        localStorage.setItem(dKey, JSON.stringify(Array.from(map_diamanten.entries())))
+    lijst_personen = JSON.parse(localStorage.getItem(lijstKey))
+    for (var persoon of lijst_personen) {
+        personen.push(JSON.parse(localStorage.getItem(persoon)))
     }
-    if (!localStorage.getItem(lKey)) {
-        localStorage.setItem(lKey, JSON.stringify(Array.from(map_record.entries())))
-    }
-    map_diamanten = new Map(JSON.parse(localStorage.getItem(dKey)))
-    map_record = new Map(JSON.parse(localStorage.getItem(lKey)))
+    localStorage.setItem(selfKey, JSON.stringify(Array.from(self.entries())))
+    localStorage.setItem("letterkuil-geselecteerde_letters", JSON.stringify([]))
 
     var canvas = document.createElement('canvas');
     canvas.width = 1500;
     canvas.height = 700;
     document.body.appendChild(canvas);
     var c = canvas.getContext('2d');
-    c.font = "20px Arial";
-    var geselekteerde_letters = [];
-    var random_lijst = [];
-    var start = false;
-    var isBijGat = false;
-    var x = 0;
-    var yVanRecord = 100
-    var naam;
-    var snelheid = 20;
-    var pac1 = new Image()
-    var pac2 = new Image()
-    var pac3 = new Image()
-    var pac4 = new Image()
-    var hoed = new Image()
-    var pac = 4
-    var aantal_tekenen = 0
-    var level = 1
-    levels(1)
-    pac1.src = "pacman.png"
-    pac2.src = "pacman2.png"
-    pac3.src = "pacman3.png"
-    pac4.src = "pacman4.png"
-    hoed.src = "hogehoed.png"
-    var puut = new Audio("Puut-kort.mp3")
-    addEventListener("keyup", function (ev) {
-        if (ev.key === random_lijst.at(0)) {
-            random_lijst.splice(0, 1);
-            x-=25;
-        } else {
-            if (naam) {
-                puut.play()
-            }
+    var beginDingen = []
+    var geselcteerdeSpeler = null
+    var button;
+    beginscherm()
+
+    function beginscherm() {
+        var y = 200
+        c.font = "70px Arial"
+        c.fillText("L   e   t   t   e   r   k   u   i   l", 500, 80)
+        var input = document.createElement("input")
+        var maakSpeler = document.createElement("button")
+        var speel = document.createElement("button")
+        input.value = "nieuwe speler naam"
+        input.style.position = "absolute"
+        input.style.left = "500px"
+        input.style.top = "650px"
+        maakSpeler.innerText = "maak speler"
+        maakSpeler.style.position = "absolute"
+        maakSpeler.style.left = "680px"
+        maakSpeler.style.top = "650px"
+        maakSpeler.inputveld = input
+        maakSpeler.onclick = createSpeler
+        speel.innerText = "speel spel"
+        speel.style.font = "30px Arial"
+        speel.style.position = "absolute"
+        speel.style.left = "1000px"
+        speel.style.top = "300px"
+        speel.onclick = function () {
+            window.location.assign("configureer.html")
         }
-    })
-    lus();
-
-    function getRandomInt(max) {
-        return Math.floor(Math.random() * max);
-    }
-
-    function drawLine(x1, y1, x2,y2, stroke = 'white', width = 3) {
-        c.beginPath();
-        c.moveTo(x1, y1);
-        c.lineTo(x2, y2);
-        c.strokeStyle = stroke;
-        c.lineWidth = width;
-        c.stroke();
-    }
-
-    function begin() {
-        if (geselekteerde_letters.length > 0) {
-            var beginbutton = document.getElementById("Begin");
-            beginbutton.innerText = "Stop";
-            beginbutton.onclick = stop;
-            for (var n = 0; n < 26; n++) {
-                random_lijst.push(geselekteerde_letters.at(getRandomInt(geselekteerde_letters.length)));
-            }
-            start = true;
-        }
-    }
-
-    function stop() {
-        var beginbutton = document.getElementById("Begin");
-        beginbutton.innerText = "Begin";
-        beginbutton.onclick = begin;
-        random_lijst = [];
-        x = 0;
-        start = false;
-        levels(1)
-    }
-
-    function lus() {
-        c.clearRect(0, 0, 1500, 700);
-        c.fillStyle = "#868686"
-        c.fillRect(1095, 110, 100, 25)
-        c.fillStyle = "#000000"
-        c.fillRect(680, 150, 520, 200)
-        c.fillText(geselekteerde_letters.join(" "), 20, 20);
-        c.fillText("level: "+level, 1100, 130)
-        for (var key of map_record.keys()) {
-            c.fillText(key+": "+map_record.get(key), 1220, yVanRecord)
-            yVanRecord+=20
-        }
-        yVanRecord=100
-        if (naam) {
-            c.fillText(naam, 20, 45)
-            c.fillText(map_diamanten.get(naam)+"/20", 500, 20)
-        }
-        c.fillStyle = "#FFFFFF"
-        drawLine(800, 260, 1200, 260);
-        switch (pac) {
-            case 1 :
-                c.drawImage(pac1, 575, 150)
-                aantal_tekenen += 1
-                if (aantal_tekenen === 20) {
-                    pac = 4
-                    aantal_tekenen = 0
-                }
-                break
-            case 2:
-                c.drawImage(pac3, 575, 150)
-                aantal_tekenen += 1
-                if (aantal_tekenen === 20) {
-                    pac = 1
-                    aantal_tekenen = 0
-                }
-                break
-            case 3:
-                c.drawImage(pac4, 575, 150)
-                aantal_tekenen += 1
-                if (aantal_tekenen === 20) {
-                    pac = 2
-                    aantal_tekenen = 0
-                }
-                break
-            case 4:
-                c.drawImage(pac2, 575, 150)
-                aantal_tekenen += 1
-                if (aantal_tekenen === 20) {
-                    pac = 3
-                    aantal_tekenen = 0
-                }
-                break
-        }
-        if (map_diamanten.get(naam) >= 20) {
-            c.drawImage(hoed, 624, 13)
-        }
-        if (start) {
-                if (isBijGat) {
-                    for (var r = 0; r < 26; r++) {
-                        random_lijst.push(geselekteerde_letters.at(getRandomInt(geselekteerde_letters.length)));
-                    }
-                    x = 0
-                    isBijGat = false
-                    levels(level - 1)
-                }
-                if (!random_lijst.length) {
-                    for (var n = 0; n < 26; n++) {
-                        random_lijst.push(geselekteerde_letters.at(getRandomInt(geselekteerde_letters.length)));
-                    }
-                    x = 0
-                    isBijGat = false
-                    levels(level + 1)
-                    if (geselekteerde_letters.length > 2) {
-                        map_diamanten.set(naam, map_diamanten.get(naam)+1)
-                        localStorage.setItem(dKey, JSON.stringify(Array.from(map_diamanten.entries())))
-                    }
-                    if (map_record.get(naam) < level) {
-                        map_record.set(naam, level)
-                        localStorage.setItem(lKey, JSON.stringify(Array.from(map_record.entries())))
-                    }
-                }
-                var xVanLetter = 1200 - x;
-                for (var nRl = 0; nRl < random_lijst.length; nRl++) {
-                    if (xVanLetter > 775) {
-                        c.fillText(random_lijst.at(nRl) + " ", xVanLetter, 240);
-                    } else {
-                        random_lijst.splice(0, 1);
-                        isBijGat = true;
-                    }
-                    xVanLetter += 25;
-                }
-                if (!isBijGat) {
-                    x += 1;
-                }
-            }
-        setTimeout(lus, snelheid)
-    }
-
-    function Button(text) {
-        var indexVanText = geselekteerde_letters.indexOf(text);
-        if (indexVanText < 0) {
-            geselekteerde_letters.push(text);
-        } else {
-            geselekteerde_letters.splice(indexVanText, 1);
-        }
-    }
-
-    function selectAlles() {
-        var select = document.getElementById("select")
-        if (select.innerText === "selecteer alles") {
-            geselekteerde_letters.splice(0, geselekteerde_letters.length)
-            for (var l=97; l<=122; l++) {
-                geselekteerde_letters.push(String.fromCharCode(l));
-            }
-            select.innerText = "maak leeg"
-        } else {
-            geselekteerde_letters.splice(0, geselekteerde_letters.length);
-            select.innerText = "selecteer alles"
-        }
-    }
-
-    function levels(levels) {
-        level = levels
-        snelheid = 36-(4*(levels-1))
-    }
-
-    function inloggen() {
-        input = document.createElement("input")
-        b = document.createElement("button")
-        b.innerText = "ok"
-        b.onclick = ok
-        input.value = "naam"
+        beginDingen.push(input)
+        beginDingen.push(maakSpeler)
+        beginDingen.push(speel)
         document.body.appendChild(input)
-        document.body.appendChild(b)
-    }
-
-    function ok() {
-        naam = input.value
-        b.remove()
-        input.remove()
-        if (!map_record.has(naam)) {
-            map_record.set(naam, 1)
-            map_diamanten.set(naam, 0)
-            localStorage.setItem(lKey, JSON.stringify(Array.from(map_record.entries())))
-            localStorage.setItem(dKey, JSON.stringify(Array.from(map_diamanten.entries())))
+        document.body.appendChild(maakSpeler)
+        document.body.appendChild(speel)
+        for (persoon of lijst_personen) {
+            button = document.createElement("button");
+            var deleteButton = document.createElement("button")
+            button.style.font = "30px Arial"
+            button.style.position = "absolute"
+            button.style.left = "500px"
+            button.style.top = y.toString()+"px"
+            button.style.width = "240px"
+            button.innerText = persoon.replace("letterkuil-", "")
+            button.persoon = persoon
+            if (lijst_personen.length > 1) {
+                button.style.background = "#868686"
+            } else {
+                button.style.background = "#0d8600"
+                geselcteerdeSpeler = button
+                self = new Map()
+                self.set(persoon, personen.at(lijst_personen.indexOf(persoon)))
+                localStorage.setItem(selfKey, JSON.stringify(Array.from(self.entries())))
+            }
+            button.onclick = function (ev) {
+                ev.currentTarget.style.background = "#0d8600"
+                if (geselcteerdeSpeler) {
+                    geselcteerdeSpeler.style.background = "#868686"
+                }
+                geselcteerdeSpeler = ev.currentTarget
+                self = new Map()
+                self.set(ev.currentTarget.persoon, personen.at(lijst_personen.indexOf(ev.currentTarget.persoon)))
+                localStorage.setItem(selfKey, JSON.stringify(Array.from(self.entries())))
+            }
+            deleteButton.delete = persoon
+            deleteButton.style.position = "absolute";
+            deleteButton.style.left = (500+parseInt(button.style.width.replace("px", ""))).toString()+"px"
+            deleteButton.style.top = y.toString()+"px"
+            deleteButton.innerHTML = '<img src="vuilbak.jpg" alt="delete"/>';
+            deleteButton.onclick = deleteSpeler
+            beginDingen.push(button)
+            beginDingen.push(deleteButton)
+            document.body.appendChild(button)
+            document.body.appendChild(deleteButton)
+            y+=35
         }
     }
 
-    function deleteSpeler() {
-        input = document.createElement("input")
-        b = document.createElement("button")
-        b.innerText = "ok"
-        b.onclick = delete_button
-        input.value = "speler"
-        document.body.appendChild(input)
-        document.body.appendChild(b)
+    function deleteSpeler(ev) {
+        lijst_personen.splice(lijst_personen.indexOf(ev.currentTarget.delete), 1)
+        localStorage.removeItem(ev.currentTarget.delete)
+        localStorage.setItem(lijstKey, JSON.stringify(lijst_personen))
+        for (var b of beginDingen) {
+            b.remove()
+        }
+        beginDingen = []
+        beginscherm()
     }
 
-    function delete_button() {
-        map_record.delete(input.value)
-        map_diamanten.delete(input.value)
-        localStorage.setItem(dKey, JSON.stringify(Array.from(map_diamanten.entries())))
-        localStorage.setItem(lKey, JSON.stringify(Array.from(map_record.entries())))
-        b.remove()
-        input.remove()
+    function createSpeler(ev) {
+        lijst_personen.push("letterkuil-"+ev.currentTarget.inputveld.value)
+        localStorage.setItem("letterkuil-"+ev.currentTarget.inputveld.value, JSON.stringify([1, 0]))
+        localStorage.setItem(lijstKey, JSON.stringify(lijst_personen))
+        for (var b of beginDingen) {
+            b.remove()
+        }
+        beginDingen = []
+        beginscherm()
     }
 </script>
 </body>
