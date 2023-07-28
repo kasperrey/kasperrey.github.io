@@ -5,6 +5,11 @@
     <title>Letterkuil</title>
 </head>
 <body>
+<button style="position: absolute; top: 20px; left: 1000px" onclick="levels(1)">start level 1</button>
+<button style="position: absolute; top: 20px; left: 1100px" onclick="levels(3)">start level 3</button>
+<button style="position: absolute; top: 20px; left: 1200px" onclick="levels(6)">start level 6</button>
+<button style="position: absolute; top: 700px; left: 1000px; font: 30px Arial" onclick="window.location.assign('configureer.html')">stop</button>
+
 <script>
   var x = 0
   var yVanRecord = 100
@@ -48,43 +53,6 @@
   var versnelling = 0.1;
   var start = false
   levels(1)
-  var button = document.createElement("button")
-  button.style.position = "absolute"
-  button.style.top = "700px"
-  button.style.left = "1000px"
-  button.style.font = "30px Arial"
-  button.innerText = "stop"
-  button.onclick = function () {
-      window.location.assign("configureer.html")
-  }
-  document.body.appendChild(button)
-  button = document.createElement("button")
-  button.style.position = "absolute"
-  button.style.top = "20px"
-  button.style.left = "1000px"
-  button.innerText = "start level 1"
-  button.onclick = function () {
-      levels(1)
-  }
-  document.body.appendChild(button)
-  button = document.createElement("button")
-  button.style.position = "absolute"
-  button.style.top = "20px"
-  button.style.left = "1100px"
-  button.innerText = "start level 3"
-  button.onclick = function () {
-      levels(3)
-  }
-  document.body.appendChild(button)
-  button = document.createElement("button")
-  button.style.position = "absolute"
-  button.style.top = "20px"
-  button.style.left = "1200px"
-  button.innerText = "start level 6"
-  button.onclick = function () {
-      levels(6)
-  }
-  document.body.appendChild(button)
   addEventListener("click", function () {
       start = true
   })

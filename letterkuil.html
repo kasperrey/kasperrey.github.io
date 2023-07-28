@@ -5,6 +5,11 @@
     <title>Letterkuil</title>
 </head>
 <body>
+
+<button onclick="window.location.assign('configureer.html')" style="font: 30px Arial; position: absolute; top: 300px; left: 1000px">speel spel</button>
+<button onclick="createSpeler()" style="position: absolute; top: 650px; left: 680px">maak speler</button>
+<input style="position: absolute; top: 650px; left: 500px" id="input" placeholder="nieuwe speler naam">
+
 <script>
     var lijst_personen = []
     var personen = []
@@ -38,33 +43,6 @@
         var y = 200
         c.font = "70px Arial"
         c.fillText("L   e   t   t   e   r   k   u   i   l", 500, 80)
-        var input = document.createElement("input")
-        var maakSpeler = document.createElement("button")
-        var speel = document.createElement("button")
-        input.value = "nieuwe speler naam"
-        input.style.position = "absolute"
-        input.style.left = "500px"
-        input.style.top = "650px"
-        maakSpeler.innerText = "maak speler"
-        maakSpeler.style.position = "absolute"
-        maakSpeler.style.left = "680px"
-        maakSpeler.style.top = "650px"
-        maakSpeler.inputveld = input
-        maakSpeler.onclick = createSpeler
-        speel.innerText = "speel spel"
-        speel.style.font = "30px Arial"
-        speel.style.position = "absolute"
-        speel.style.left = "1000px"
-        speel.style.top = "300px"
-        speel.onclick = function () {
-            window.location.assign("configureer.html")
-        }
-        beginDingen.push(input)
-        beginDingen.push(maakSpeler)
-        beginDingen.push(speel)
-        document.body.appendChild(input)
-        document.body.appendChild(maakSpeler)
-        document.body.appendChild(speel)
         for (persoon of lijst_personen) {
             button = document.createElement("button");
             var deleteButton = document.createElement("button")
@@ -119,9 +97,10 @@
         beginscherm()
     }
 
-    function createSpeler(ev) {
-        lijst_personen.push("letterkuil-"+ev.currentTarget.inputveld.value)
-        localStorage.setItem("letterkuil-"+ev.currentTarget.inputveld.value, JSON.stringify([1, 0]))
+    function createSpeler() {
+        var input = document.getElementById("input")
+        lijst_personen.push("letterkuil-"+input.value)
+        localStorage.setItem("letterkuil-"+input.value, JSON.stringify([1, 0]))
         localStorage.setItem(lijstKey, JSON.stringify(lijst_personen))
         for (var b of beginDingen) {
             b.remove()
