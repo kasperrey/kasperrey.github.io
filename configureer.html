@@ -14,10 +14,11 @@
     </style>
 </head>
 <body>
+<script src="./alles_met_localstorage.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/simple-keyboard@latest/build/index.js"></script>
 
-<canvas width="1500" height="500" id="canvas"></canvas>
-<input class="input" placeholder="Tap on the virtual keyboard to start" style="position: absolute; top: 630px; left: 550px; width: 590px"/>
+<canvas width="1500px" height="500px" id="canvas"></canvas>
+<input class="input" placeholder="selecteer de letters op het toetsenbord" style="position: absolute; top: 630px; left: 550px; width: 590px"/>
 <div class="simple-keyboard" style="max-width: 600px; position: absolute; top: 700px; left: 550px"></div>
 <button onclick="selectAlles()" id="selectallles" style="position: absolute; top: 655px; left: 700px; font: 30px Arial">selecteer alle letters</button>
 <button onclick="window.location.assign('spel.html')" style="position: absolute; top: 200px; left: 300px;font: 100px Arial">start</button>
@@ -44,6 +45,13 @@
               '{lock} Q S D F G H J K L M % £ {enter}',
               '{shift} > W X C V B N ? . / + {shift}',
               '{ctrl} {alt} {space} {altgr} {ctrl}'
+          ],
+          'AltGr': [
+              '¬ | @ # ¼ ½ ^ { [ { } \\ ¸ {bksp}',
+              '{tab} @ ł € ¶ ŧ ← ↓ → œ þ [ ] {enter}',
+              '{lock} æ ß ð đ ŋ ħ ˀ ĸ ł \' \' \` {enter}',
+              '{shift} \\ « » ¢ “ ” n ¸ ─ · ~ {shift}',
+              '{ctrl} {alt} {space} {altgr} {ctrl}'
           ]
       },
       display: {
@@ -61,21 +69,19 @@
 
   myKeyboard.addButtonTheme("{ctrl} {alt} {altgr}", "key-grootte")
 
-  var buttons = []
   var puut = new Audio("Puut-kort.mp3")
   var x = 20
   var geselecteerdeLetters = []
   var alfabet = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"]
-  var persoon = new Map(JSON.parse(localStorage.getItem("letterkuil-geselekteerd_persoon")))
-  if (!persoon.get(Array.from(persoon.keys()).at(0).toString())) {
-      window.location.assign("letterkuil.html")
-  }
+  var persoon = window.alles_met_localstorage.getGeselecteerd_persoon()
+
   var canvas = document.getElementById("canvas")
   var c = canvas.getContext('2d');
   c.font = "30px Arial"
-  c.fillText(Array.from(persoon.keys()).at(0).toString().replace("letterkuil-", ""), 20, 20)
-  c.fillText("hoogste level: "+persoon.get(Array.from(persoon.keys()).at(0).toString()).at(0), 400, 20)
-  c.fillText("diamanten: "+persoon.get(Array.from(persoon.keys()).at(0).toString()).at(1), 700, 20)
+
+  c.fillText(persoon.naam.replace("letterkuil-speler-", ""), 20, 20)
+  c.fillText("hoogste level: "+persoon.level, 400, 20)
+  c.fillText("diamanten: "+persoon.diamanten, 700, 20)
 
   function selectAlles() {
       var button = document.getElementById("selectallles")
@@ -94,7 +100,7 @@
           myKeyboard.removeButtonTheme(alfabet.join(" "), "key-geselecteerd")
           button.innerText = "selecteer alle letters"
       }
-      localStorage.setItem("letterkuil-geselecteerde_letters", JSON.stringify(geselecteerdeLetters))
+      window.alles_met_localstorage.setGeselecteerde_letters(geselecteerdeLetters)
       onChange()
   }
 
@@ -105,7 +111,9 @@
   function onKeyPress(button) {
       if (button === "{shift}" || button === "{lock}") {
           handleShift();
-      } else if (button === "{bksp}" || button === "{tab}" || button === "{enter}" || button === "{space}" || button === "{ctrl}" || button === "{alt}" || button === "{altgr}") {
+      } else if (button === "{altgr}") {
+          handleAlt();
+      } else if (button === "{bksp}" || button === "{tab}" || button === "{enter}" || button === "{space}" || button === "{ctrl}" || button === "{alt}") {
           puut.play()
       } else {
           if (geselecteerdeLetters.indexOf(button) > -1) {
@@ -115,13 +123,21 @@
               geselecteerdeLetters.push(button)
               myKeyboard.addButtonTheme(button, "key-geselecteerd")
           }
-          localStorage.setItem("letterkuil-geselecteerde_letters", JSON.stringify(geselecteerdeLetters))
+          window.alles_met_localstorage.setGeselecteerde_letters(geselecteerdeLetters)
       }
   }
 
   function handleShift() {
       let currentLayout = myKeyboard.options.layoutName;
       let shiftToggle = currentLayout === "default" ? "shift" : "default";
+      myKeyboard.setOptions({
+          layoutName: shiftToggle
+      });
+  }
+
+  function handleAlt() {
+      let currentLayout = myKeyboard.options.layoutName;
+      let shiftToggle = currentLayout === "default" ? "AltGr" : "default";
       myKeyboard.setOptions({
           layoutName: shiftToggle
       });

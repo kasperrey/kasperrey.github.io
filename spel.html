@@ -5,10 +5,13 @@
     <title>Letterkuil</title>
 </head>
 <body>
+<script src="./alles_met_localstorage.js"></script>
+
 <button style="position: absolute; top: 20px; left: 1000px" onclick="levels(1)">start level 1</button>
 <button style="position: absolute; top: 20px; left: 1100px" onclick="levels(3)">start level 3</button>
 <button style="position: absolute; top: 20px; left: 1200px" onclick="levels(6)">start level 6</button>
 <button style="position: absolute; top: 700px; left: 1000px; font: 30px Arial" onclick="window.location.assign('configureer.html')">stop</button>
+<canvas width="1500px" height="700px" id="canvas"></canvas>
 
 <script>
   var x = 0
@@ -17,21 +20,16 @@
   var personen = []
   var random_lijst = [];
 
-  var lijstKey = "letterkuil-lijst_personen"
-  var selfKey = "letterkuil-geselekteerd_persoon"
-  lijst_personen = JSON.parse(localStorage.getItem(lijstKey))
+  lijst_personen = window.alles_met_localstorage.getLijst_met_personen()
   for (var persoon of lijst_personen) {
-    personen.push(JSON.parse(localStorage.getItem(persoon)))
+    personen.push(window.alles_met_localstorage.getPersoon(persoon))
   }
-  var geselecteerd_persoon = new Map(JSON.parse(localStorage.getItem(selfKey)))
-  var geselecteerdeLetters = JSON.parse(localStorage.getItem("letterkuil-geselecteerde_letters"))
+  var geselecteerd_persoon = window.alles_met_localstorage.getGeselecteerd_persoon()
+  var geselecteerdeLetters = window.alles_met_localstorage.getGeselecteerde_letters()
   if (!geselecteerdeLetters.length) {
       window.location.assign("configureer.html")
   }
-  var canvas = document.createElement('canvas');
-  canvas.width = 1500;
-  canvas.height = 700;
-  document.body.appendChild(canvas);
+  var canvas = document.getElementById("canvas")
   var c = canvas.getContext('2d');
   c.font = "20px Arial"
   var pac1 = new Image()
@@ -41,13 +39,12 @@
   var hoed = new Image()
   var pac = 4
   var aantal_tekenen = 0
-  pac1.src = "pacman.png"
-  pac2.src = "pacman2.png"
-  pac3.src = "pacman3.png"
-  pac4.src = "pacman4.png"
-  hoed.src = "hogehoed.png"
+  pac1.src = geselecteerd_persoon.monster+geselecteerd_persoon.kleur+".png"
+  pac2.src = geselecteerd_persoon.monster+geselecteerd_persoon.kleur+"2.png"
+  pac3.src = geselecteerd_persoon.monster+geselecteerd_persoon.kleur+"3.png"
+  pac4.src = geselecteerd_persoon.monster+geselecteerd_persoon.kleur+"4.png"
+  hoed.src = geselecteerd_persoon.hoed
   var puut = new Audio("Puut-kort.mp3")
-  var naam  = Array.from(geselecteerd_persoon.keys()).at(0).toString()
   var isBijGat = false
   var level;
   var versnelling = 0.1;
@@ -75,12 +72,12 @@
     c.fillRect(680, 150, 520, 200)
     c.fillText("level: "+level, 1100, 130)
     for (var key of lijst_personen) {
-      c.fillText(key.toString().replace("letterkuil-", "")+": "+personen.at(lijst_personen.indexOf(key)).at(0), 1220, yVanRecord)
+      c.fillText(key.toString().replace("letterkuil-speler-", "")+": "+personen.at(lijst_personen.indexOf(key)).level, 1220, yVanRecord)
       yVanRecord+=20
     }
     yVanRecord=100
-    c.fillText(naam.replace("letterkuil-", ""), 20, 45)
-    c.fillText("diamanten: "+geselecteerd_persoon.get(naam).at(1)+"/20", 500, 20)
+    c.fillText(geselecteerd_persoon.naam.replace("letterkuil-speler-", ""), 20, 45)
+    c.fillText("diamanten: "+geselecteerd_persoon.diamanten, 500, 20)
     c.fillStyle = "#FFFFFF"
     drawLine(800, 260, 1200, 260);
     switch (pac) {
@@ -117,7 +114,7 @@
         }
         break
     }
-    if (geselecteerd_persoon.get(naam).at(1) >= 20) {
+    if (geselecteerd_persoon.diamanten >= 20) {
       c.drawImage(hoed, 624, 13)
     }
     if (start) {
@@ -135,15 +132,15 @@
         }
         x = 0
         levels(level + 1)
-        if (geselecteerdeLetters.length > 2) {
-            personen[indexVan(personen, geselecteerd_persoon.get(naam))][1] = personen.at(indexVan(personen, geselecteerd_persoon.get(naam))).at(1)+1
-            geselecteerd_persoon.set(naam, [geselecteerd_persoon.get(naam).at(0), geselecteerd_persoon.get(naam).at(1)+1])
-            localStorage.setItem(naam, JSON.stringify(personen.at(indexVan(personen, geselecteerd_persoon.get(naam)))))
+        if (geselecteerdeLetters.length >= 2) {
+            personen[indexvan(personen, geselecteerd_persoon)].diamanten = personen.at(indexvan(personen, geselecteerd_persoon)).diamanten+1
+            geselecteerd_persoon.diamanten+=1
+            window.alles_met_localstorage.setPersoon(geselecteerd_persoon.naam, geselecteerd_persoon)
         }
-        if (geselecteerd_persoon.get(naam).at(0) < level) {
-            personen[indexVan(personen, geselecteerd_persoon.get(naam))][0] = personen.at(indexVan(personen, geselecteerd_persoon.get(naam))).at(0)+1
-            geselecteerd_persoon.set(naam, [geselecteerd_persoon.get(naam).at(0)+1, geselecteerd_persoon.get(naam).at(1)])
-            localStorage.setItem(naam, JSON.stringify(personen.at(indexVan(personen, geselecteerd_persoon.get(naam)))))
+        if (geselecteerd_persoon.level < level) {
+            personen[indexvan(personen, geselecteerd_persoon)].level = personen.at(indexvan(personen, geselecteerd_persoon)).level+1
+            geselecteerd_persoon.level = level
+            window.alles_met_localstorage.setPersoon(geselecteerd_persoon.naam, geselecteerd_persoon)
         }
       }
       var xVanLetter = 1200 - x;
@@ -188,13 +185,12 @@
       lus()
   }
 
-  function indexVan(lijst, obj) {
+  function indexvan(lijst, obj) {
       for (var i = 0; i < lijst.length; i++) {
-          if (lijst[i][0] === obj[0] && lijst[i][1] === obj[1]) {
-              return i
+          if (lijst.at(i).naam === obj.naam) {
+              return i;
           }
       }
-      return -1
   }
 </script>
 </body>
