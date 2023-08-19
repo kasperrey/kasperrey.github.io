@@ -149,7 +149,7 @@
             window.alles_met_localstorage.setGeselecteerd_persoon(geselecteerd_persoon)
         }
         if (geselecteerd_persoon.level < level) {
-            personen[indexvan(personen, geselecteerd_persoon)].level = personen.at(indexvan(personen, geselecteerd_persoon)).level+1
+            personen[indexvan(personen, geselecteerd_persoon)].level = personen.at(indexvan(personen, geselecteerd_persoon)).level = level
             geselecteerd_persoon.level = level
             window.alles_met_localstorage.setPersoon(geselecteerd_persoon.naam, geselecteerd_persoon)
         }
