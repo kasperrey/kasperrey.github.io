@@ -9,9 +9,18 @@
 <script src="./alles_met_localstorage.js"></script>
 
 <button onclick="window.location.assign('configureer.html')" style="font: 60px Arial; position: absolute; top: 600px; left: 800px">ga terug</button>
+<span class="material-symbols-outlined" style="position: absolute; left: 940px; top: 30px">
+    diamond
+</span>
 
 <script>
   var geselecteerd_persoon = window.alles_met_localstorage.getGeselecteerd_persoon()
+  var text = document.createElement("p")
+  text.innerText = "je hebt: "+geselecteerd_persoon.diamanten
+  text.style.position = "absolute"
+  text.style.left = "850px"
+  text.style.top = "20px"
+  document.body.appendChild(text)
   var y = 5
   var x = 5
   maakKnop('<img src="hogehoedlente.png" alt="hogehoed lente">', 'hogehoedlente.png', 'hoed', 15)
@@ -19,10 +28,12 @@
 
   function kopen(image, wat, kost) {
       if (geselecteerd_persoon.diamanten >= kost) {
-          geselecteerd_persoon[wat] = image
-          geselecteerd_persoon.diamanten -= kost
-          window.alles_met_localstorage.setGeselecteerd_persoon(geselecteerd_persoon)
-          window.alles_met_localstorage.setPersoon(geselecteerd_persoon.naam, geselecteerd_persoon)
+          if (geselecteerd_persoon.hoed !== image) {
+              geselecteerd_persoon[wat] = image
+              geselecteerd_persoon.diamanten -= kost
+              window.alles_met_localstorage.setGeselecteerd_persoon(geselecteerd_persoon)
+              window.alles_met_localstorage.setPersoon(geselecteerd_persoon.naam, geselecteerd_persoon)
+          }
       }
   }
 
@@ -35,27 +46,31 @@
   }
 
   function maakKnop(innerHtml, image, wat, kost) {
-      var button = document.createElement("button")
-      button.onclick = function () {kopen(image, wat, kost)}
-      button.style.position = "absolute"
-      button.style.top = y.toString()+"px"
-      button.style.left = x.toString()+"px"
-      button.innerHTML = innerHtml
-      var text = document.createElement("p")
-      text.innerText = kost
-      text.style.position = "absolute"
-      text.style.top = (y + 145).toString()+"px"
-      text.style.left = (x + 35).toString()+"px"
-      var diamant = document.createElement("span")
-      diamant.innerText = "diamond"
-      diamant.className = "material-symbols-outlined"
-      diamant.style.position = "absolute"
-      diamant.style.top = (y + 165).toString()+"px"
-      diamant.style.left = (x + 65).toString()+"px"
-      document.body.appendChild(button)
-      document.body.appendChild(text)
-      document.body.appendChild(diamant)
-      xy()
+      if (geselecteerd_persoon.hoed !== image) {
+          var button = document.createElement("button")
+          button.onclick = function () {
+              kopen(image, wat, kost)
+          }
+          button.style.position = "absolute"
+          button.style.top = y.toString() + "px"
+          button.style.left = x.toString() + "px"
+          button.innerHTML = innerHtml
+          var text = document.createElement("p")
+          text.innerText = "prijs: " + kost
+          text.style.position = "absolute"
+          text.style.top = (y + 145).toString() + "px"
+          text.style.left = x.toString() + "px"
+          var diamant = document.createElement("span")
+          diamant.innerText = "diamond"
+          diamant.className = "material-symbols-outlined"
+          diamant.style.position = "absolute"
+          diamant.style.top = (y + 165).toString() + "px"
+          diamant.style.left = (x + 65).toString() + "px"
+          document.body.appendChild(button)
+          document.body.appendChild(text)
+          document.body.appendChild(diamant)
+          xy()
+      }
   }
 </script>
 </body>
