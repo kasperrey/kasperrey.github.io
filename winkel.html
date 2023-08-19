@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Letterkuil</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@40,400,0,0" />
+</head>
+<body>
+<script src="./alles_met_localstorage.js"></script>
+
+<button onclick="window.location.assign('configureer.html')" style="font: 60px Arial; position: absolute; top: 600px; left: 800px">ga terug</button>
+
+<script>
+  var geselecteerd_persoon = window.alles_met_localstorage.getGeselecteerd_persoon()
+  var y = 5
+  var x = 5
+  maakKnop('<img src="hogehoedlente.png" alt="hogehoed lente">', 'hogehoedlente.png', 'hoed', 15)
+  maakKnop('<img src="muts.png" alt="muts">', 'muts.png', 'hoed', 10)
+
+  function kopen(image, wat, kost) {
+      if (geselecteerd_persoon.diamanten >= kost) {
+          geselecteerd_persoon[wat] = image
+          geselecteerd_persoon.diamanten -= kost
+          window.alles_met_localstorage.setGeselecteerd_persoon(geselecteerd_persoon)
+          window.alles_met_localstorage.setPersoon(geselecteerd_persoon.naam, geselecteerd_persoon)
+      }
+  }
+
+  function xy() {
+      x += 125
+      if (x >= 800) {
+          x = 5
+          y += 250
+      }
+  }
+
+  function maakKnop(innerHtml, image, wat, kost) {
+      var button = document.createElement("button")
+      button.onclick = function () {kopen(image, wat, kost)}
+      button.style.position = "absolute"
+      button.style.top = y.toString()+"px"
+      button.style.left = x.toString()+"px"
+      button.innerHTML = innerHtml
+      var text = document.createElement("p")
+      text.innerText = kost
+      text.style.position = "absolute"
+      text.style.top = (y + 145).toString()+"px"
+      text.style.left = (x + 35).toString()+"px"
+      var diamant = document.createElement("span")
+      diamant.innerText = "diamond"
+      diamant.className = "material-symbols-outlined"
+      diamant.style.position = "absolute"
+      diamant.style.top = (y + 165).toString()+"px"
+      diamant.style.left = (x + 65).toString()+"px"
+      document.body.appendChild(button)
+      document.body.appendChild(text)
+      document.body.appendChild(diamant)
+      xy()
+  }
+</script>
+</body>
+</html>

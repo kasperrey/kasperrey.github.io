@@ -39,6 +39,7 @@
   var hoed = new Image()
   var pac = 4
   var aantal_tekenen = 0
+  var missers = 0
   pac1.src = geselecteerd_persoon.monster+geselecteerd_persoon.kleur+".png"
   pac2.src = geselecteerd_persoon.monster+geselecteerd_persoon.kleur+"2.png"
   pac3.src = geselecteerd_persoon.monster+geselecteerd_persoon.kleur+"3.png"
@@ -59,6 +60,16 @@
           x-=25;
       } else {
           puut.play()
+          missers += 1
+          if (missers > 9) {
+              for (var r = 0; r < 26; r++) {
+                  random_lijst.push(geselecteerdeLetters.at(getRandomInt(geselecteerdeLetters.length)));
+              }
+              x = 0
+              isBijGat = false
+              levels(level - 1)
+              missers = 0
+          }
       }
   })
   begin()
@@ -75,6 +86,7 @@
       c.fillText(key.toString().replace("letterkuil-speler-", "")+": "+personen.at(lijst_personen.indexOf(key)).level, 1220, yVanRecord)
       yVanRecord+=20
     }
+    c.fillText("foute toetsen: "+missers.toString()+"/10", 1220, yVanRecord)
     yVanRecord=100
     c.fillText(geselecteerd_persoon.naam.replace("letterkuil-speler-", ""), 20, 45)
     c.fillText("diamanten: "+geselecteerd_persoon.diamanten, 500, 20)
@@ -114,9 +126,7 @@
         }
         break
     }
-    if (geselecteerd_persoon.diamanten >= 20) {
-      c.drawImage(hoed, 624, 13)
-    }
+    c.drawImage(hoed, 624, 13)
     if (start) {
       if (isBijGat) {
         for (var r = 0; r < 26; r++) {
@@ -136,6 +146,7 @@
             personen[indexvan(personen, geselecteerd_persoon)].diamanten = personen.at(indexvan(personen, geselecteerd_persoon)).diamanten+1
             geselecteerd_persoon.diamanten+=1
             window.alles_met_localstorage.setPersoon(geselecteerd_persoon.naam, geselecteerd_persoon)
+            window.alles_met_localstorage.setGeselecteerd_persoon(geselecteerd_persoon)
         }
         if (geselecteerd_persoon.level < level) {
             personen[indexvan(personen, geselecteerd_persoon)].level = personen.at(indexvan(personen, geselecteerd_persoon)).level+1
