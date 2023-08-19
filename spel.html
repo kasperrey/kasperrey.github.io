@@ -135,6 +135,7 @@
         x = 0
         isBijGat = false
         levels(level - 1)
+        missers = 0
       }
       if (!random_lijst.length) {
         for (var n = 0; n < 26; n++) {
@@ -142,17 +143,16 @@
         }
         x = 0
         levels(level + 1)
-        if (geselecteerdeLetters.length >= 2) {
-            personen[indexvan(personen, geselecteerd_persoon)].diamanten = personen.at(indexvan(personen, geselecteerd_persoon)).diamanten+1
-            geselecteerd_persoon.diamanten+=1
-            window.alles_met_localstorage.setPersoon(geselecteerd_persoon.naam, geselecteerd_persoon)
-            window.alles_met_localstorage.setGeselecteerd_persoon(geselecteerd_persoon)
-        }
+        personen[indexvan(personen, geselecteerd_persoon)].diamanten = personen.at(indexvan(personen, geselecteerd_persoon)).diamanten+Math.floor(geselecteerdeLetters.length/2)
+        geselecteerd_persoon.diamanten+=Math.floor(geselecteerdeLetters.length/2)
+        window.alles_met_localstorage.setPersoon(geselecteerd_persoon.naam, geselecteerd_persoon)
+        window.alles_met_localstorage.setGeselecteerd_persoon(geselecteerd_persoon)
         if (geselecteerd_persoon.level < level) {
             personen[indexvan(personen, geselecteerd_persoon)].level = personen.at(indexvan(personen, geselecteerd_persoon)).level = level
             geselecteerd_persoon.level = level
             window.alles_met_localstorage.setPersoon(geselecteerd_persoon.naam, geselecteerd_persoon)
         }
+        missers = 0
       }
       var xVanLetter = 1200 - x;
       for (var nRl = 0; nRl < random_lijst.length; nRl++) {
