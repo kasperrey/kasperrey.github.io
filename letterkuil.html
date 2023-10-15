@@ -19,16 +19,18 @@
     var personen = []
     var lijst_personen = window.alles_met_localstorage.getLijst_met_personen()
     window.alles_met_localstorage.check()
-    for (var persoon of lijst_personen) {
-        if (persoon.includes("letterkuil-speler-")) {
-            var person = window.alles_met_localstorage.getPersoon(persoon)
-            if (person.hasOwnProperty("kleur")) {
-                delete person["kleur"];
+    if (lijst_personen) {
+        for (var persoon of lijst_personen) {
+            if (persoon.includes("letterkuil-speler-")) {
+                var person = window.alles_met_localstorage.getPersoon(persoon)
+                if (person.hasOwnProperty("kleur")) {
+                    delete person["kleur"];
+                }
+                personen.push(person)
+            } else {
+                window.alles_met_localstorage.remove(persoon)
+                lijst_personen.splice(lijst_personen.indexOf(persoon), 1)
             }
-            personen.push(person)
-        } else {
-            window.alles_met_localstorage.remove(persoon)
-            lijst_personen.splice(lijst_personen.indexOf(persoon), 1)
         }
     }
     window.alles_met_localstorage.setGeselecteerd_persoon({})
