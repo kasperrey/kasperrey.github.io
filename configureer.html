@@ -19,6 +19,8 @@
 
 <canvas width="1500px" height="500px" id="canvas"></canvas>
 <input class="input" placeholder="selecteer de letters op het toetsenbord" style="position: absolute; top: 630px; left: 550px; width: 590px"/>
+<button onclick="azerty()" style="position: absolute; top: 630px; left: 480px">azerty</button>
+<button onclick="qwerty()" style="position: absolute; top: 630px; left: 1200px">qwerty</button>
 <div class="simple-keyboard" style="max-width: 600px; position: absolute; top: 700px; left: 550px"></div>
 <button onclick="selectAlles()" id="selectallles" style="position: absolute; top: 655px; left: 700px; font: 30px Arial">selecteer alle letters</button>
 <button onclick="window.location.assign('spel.html')" style="position: absolute; top: 200px; left: 300px;font: 100px Arial">start</button>
@@ -51,7 +53,7 @@
           'AltGr': [
               '¬ | @ # ¼ ½ ^ { [ { } \\ ¸ {bksp}',
               '{tab} @ ł € ¶ ŧ ← ↓ → œ þ [ ] {enter}',
-              '{lock} æ ß ð đ ŋ ħ ˀ ĸ ł \' \' \` {enter}',
+              '{lock} æ ß ð đ ŋ ħ ˀ ĸ ł \' \´ \` {enter}',
               '{shift} \\ « » ¢ “ ” n ¸ ─ · ~ {shift}',
               '{ctrl} {alt} {space} {altgr} {ctrl}'
           ]
@@ -142,6 +144,84 @@
       let shiftToggle = currentLayout === "default" ? "AltGr" : "default";
       myKeyboard.setOptions({
           layoutName: shiftToggle
+      });
+  }
+
+  function azerty() {
+      myKeyboard.setOptions({
+          layout: {
+              'default': [
+                  `² & é " ' ( § è ! ç à ) - {bksp}`,
+                  '{tab} a z e r t y u i o p ^ $ {enter}',
+                  '{lock} q s d f g h j k l m ù µ {enter}',
+                  '{shift} < w x c v b n , ; : = {shift}',
+                  '{ctrl} {alt} {space} {altgr} {ctrl}'
+              ],
+              'shift': [
+                  '³ 1 2 3 4 5 6 7 8 9 0 ° _ {bksp}',
+                  '{tab} A Z E R T Y U I O P ¨ * {enter}',
+                  '{lock} Q S D F G H J K L M % £ {enter}',
+                  '{shift} > W X C V B N ? . / + {shift}',
+                  '{ctrl} {alt} {space} {altgr} {ctrl}'
+              ],
+              'AltGr': [
+                  '¬ | @ # ¼ ½ ^ { [ { } \\ ¸ {bksp}',
+                  '{tab} @ ł € ¶ ŧ ← ↓ → œ þ [ ] {enter}',
+                  '{lock} æ ß ð đ ŋ ħ ˀ ĸ ł \' \´ \` {enter}',
+                  '{shift} \\ « » ¢ “ ” n ¸ ─ · ~ {shift}',
+                  '{ctrl} {alt} {space} {altgr} {ctrl}'
+              ]
+          },
+          display: {
+              '{bksp}': 'backspace',
+              '{enter}': 'enter',
+              '{tab}': 'tab',
+              '{lock}': 'lock',
+              '{shift}': 'shift',
+              '{ctrl}': 'Ctrl',
+              '{alt}': 'Alt',
+              '{space}': ' ',
+              '{altgr}': 'AltGr',
+          }
+      });
+  }
+
+  function qwerty() {
+      myKeyboard.setOptions({
+          layout: {
+              'default': [
+                  `\` 1 2 3 4 5 6 7 8 9 0 - = {bksp}`,
+                  '{tab} q w e r t y u i o p [ ] {enter}',
+                  '{lock} a s d f g h j k l ; \' \\ {enter}',
+                  '{shift} \\ z x c v b n m , . / {shift}',
+                  '{space} {altgr}'
+              ],
+              'shift': [
+                  '~ ! @ # $ % ^ & * ( ) _ + {bksp}',
+                  '{tab} Q W E R T Y U I O P { } {enter}',
+                  '{lock} A S D F G H J K L : " | {enter}',
+                  '{shift} | Z X C V B N M < > ? {shift}',
+                  '{space} {altgr}'
+              ],
+              'AltGr': [
+                  '€ {bksp}',
+                  '{tab} {enter}',
+                  '{lock} {enter}',
+                  '{shift} {shift}',
+                  '{space} {altgr}'
+              ]
+          },
+          display: {
+              '{bksp}': 'backspace',
+              '{enter}': 'enter',
+              '{tab}': 'tab',
+              '{lock}': 'lock',
+              '{shift}': 'shift',
+              '{ctrl}': 'Ctrl',
+              '{alt}': 'Alt',
+              '{space}': ' ',
+              '{altgr}': 'AltGr',
+          }
       });
   }
 </script>
