@@ -159,8 +159,10 @@
     }
 
     function speel_spel() {
-        if (persoonV.naam.length !== undefined) {
-            sla_op(index, persoonV)
+        if (persoonV !== undefined) {
+            if (persoonV.naam.length !== undefined) {
+                sla_op(index, persoonV)
+            }
         }
         window.location.assign('configureer.html')
     }
