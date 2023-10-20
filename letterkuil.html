@@ -16,6 +16,7 @@
 <script>
     var persoonV;
     var index;
+    var text;
     var personen = []
     var lijst_personen = window.alles_met_localstorage.getLijst_met_personen()
     window.alles_met_localstorage.check()
@@ -42,6 +43,9 @@
     beginscherm()
 
     function beginscherm() {
+        if (text) {
+            text.remove()
+        }
         var y = 200
         for (persoon of lijst_personen) {
             button = document.createElement("button");
@@ -164,7 +168,19 @@
                 sla_op(index, persoonV)
             }
         }
-        window.location.assign('configureer.html')
+        if (text) {
+            text.remove()
+        }
+        if (geselcteerdeSpeler) {
+            window.location.assign('configureer.html')
+        } else {
+            text = document.createElement("h3")
+            text.innerText = "Selecteer een speler!"
+            text.style.position = "absolute"
+            text.style.top = "90px"
+            text.style.left = "700px"
+            document.body.appendChild(text)
+        }
     }
 </script>
 </body>

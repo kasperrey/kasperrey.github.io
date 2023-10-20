@@ -145,7 +145,7 @@
         x = 0
         levels(level + 1)
         personen[indexvan(personen, geselecteerd_persoon)].diamanten = personen.at(indexvan(personen, geselecteerd_persoon)).diamanten+Math.floor(geselecteerdeLetters.length/2)
-        geselecteerd_persoon.diamanten+=Math.floor(geselecteerdeLetters.length/2)
+        geselecteerd_persoon.diamanten+=(Math.floor(geselecteerdeLetters.length/2)*Math.ceil(level/5))
         window.alles_met_localstorage.setPersoon(geselecteerd_persoon.naam, geselecteerd_persoon)
         window.alles_met_localstorage.setGeselecteerd_persoon(geselecteerd_persoon)
         if (geselecteerd_persoon.level < level) {
