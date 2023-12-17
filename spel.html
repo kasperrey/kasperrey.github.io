@@ -39,11 +39,11 @@
   var pac3 = new Image();
   var pac4 = new Image();
   var hoed = new Image();
-  pac1.src = geselecteerd_persoon.monster+".png";
-  pac2.src = geselecteerd_persoon.monster+"2.png";
-  pac3.src = geselecteerd_persoon.monster+"3.png";
-  pac4.src = geselecteerd_persoon.monster+"4.png";
-  hoed.src = geselecteerd_persoon.hoed;
+  pac1.src = "images/monsters/"+geselecteerd_persoon.monster+".png";
+  pac2.src = "images/monsters/"+geselecteerd_persoon.monster+"2.png";
+  pac3.src = "images/monsters/"+geselecteerd_persoon.monster+"3.png";
+  pac4.src = "images/monsters/"+geselecteerd_persoon.monster+"4.png";
+  hoed.src = "images/hoeden/"+geselecteerd_persoon.hoed;
   var pac = 4;
   var aantal_tekenen = 0;
   var missers = 0;
@@ -96,99 +96,29 @@
 
 
   function lus() {
-    c.clearRect(0, 0, 1500, 700);
-    c.fillStyle = "#868686";
-    c.fillRect(1095, 110, 100, 25);
-    c.fillStyle = "#000000";
-    c.fillRect(680, 150, 520, 200);
-    c.fillText("level: "+level, 1100, 130);
-    for (var key of lijst_personen) {
-      c.fillText(key.toString().replace("letterkuil-speler-", "")+": "+personen.at(lijst_personen.indexOf(key)).level, 1220, yVanRecord);
-      yVanRecord+=20;
-    }
-    c.fillText("foute toetsen: "+missers.toString()+"/10", 1220, yVanRecord);
-    yVanRecord=100;
-    c.fillText(geselecteerd_persoon.naam.replace("letterkuil-speler-", ""), 20, 45);
-    c.fillText("diamanten: "+geselecteerd_persoon.diamanten, 500, 20);
-    c.fillStyle = "#FFFFFF";
-    drawLine(800, 260, 1200, 260);
-    switch (pac) {
-      case 1 :
-        c.drawImage(pac1, 575, 150);
-        aantal_tekenen += 1;
-        if (aantal_tekenen === 60) {
-          pac = 4;
-          aantal_tekenen = 0;
-        }
-        break;
-      case 2:
-        c.drawImage(pac3, 575, 150);
-        aantal_tekenen += 1;
-        if (aantal_tekenen === 60) {
-          pac = 1;
-          aantal_tekenen = 0;
-        }
-        break;
-      case 3:
-        c.drawImage(pac4, 575, 150);
-        aantal_tekenen += 1;
-        if (aantal_tekenen === 60) {
-          pac = 2;
-          aantal_tekenen = 0;
-        }
-        break
-      case 4:
-        c.drawImage(pac2, 575, 150);
-        aantal_tekenen += 1;
-        if (aantal_tekenen === 60) {
-          pac = 3;
-          aantal_tekenen = 0;
-        }
-        break;
-    }
-    c.drawImage(hoed, 624, 13);
-    if (start) {
-      if (isBijGat) {
-        for (var r = 0; r < 26; r++) {
-            random_lijst.push(geselecteerdeLetters.at(getRandomInt(geselecteerdeLetters.length)));
-        }
-        x = 0;
-        isBijGat = false;
-        levels(level - 1);
-        missers = 0;
+      c.clearRect(0, 0, 1500, 700);
+      c.fillStyle = "#868686";
+      c.fillRect(1095, 110, 100, 25);
+      c.fillStyle = "#000000";
+      c.fillRect(680, 150, 520, 200);
+      c.fillText("level: "+level, 1100, 130);
+      for (var key of lijst_personen) {
+          c.fillText(key.toString().replace("letterkuil-speler-", "")+": "+personen.at(lijst_personen.indexOf(key)).level, 1220, yVanRecord);
+          yVanRecord+=20;
       }
-      if (!random_lijst.length) {
-        for (var n = 0; n < 26; n++) {
-          random_lijst.push(geselecteerdeLetters.at(getRandomInt(geselecteerdeLetters.length)));
-        }
-        x = 0;
-        levels(level + 1);
-        personen[indexvan(personen, geselecteerd_persoon)].diamanten = personen.at(indexvan(personen, geselecteerd_persoon)).diamanten+Math.floor(geselecteerdeLetters.length/2);
-        geselecteerd_persoon.diamanten+=(Math.floor(geselecteerdeLetters.length/2)*Math.ceil(level/5));
-        window.alles_met_localstorage.setPersoon(geselecteerd_persoon.naam, geselecteerd_persoon);
-        window.alles_met_localstorage.setGeselecteerd_persoon(geselecteerd_persoon);
-        if (geselecteerd_persoon.level < level) {
-            personen[indexvan(personen, geselecteerd_persoon)].level = personen.at(indexvan(personen, geselecteerd_persoon)).level = level;
-            geselecteerd_persoon.level = level;
-            window.alles_met_localstorage.setPersoon(geselecteerd_persoon.naam, geselecteerd_persoon);
-        }
-        missers = 0;
+      c.fillText("foute toetsen: "+missers.toString()+"/10", 1220, yVanRecord);
+      yVanRecord=100;
+      c.fillText(geselecteerd_persoon.naam.replace("letterkuil-speler-", ""), 20, 45);
+      c.fillText("diamanten: "+geselecteerd_persoon.diamanten, 500, 20);
+      c.fillStyle = "#FFFFFF";
+      drawLine(800, 260, 1200, 260);
+      doPac()
+      c.drawImage(hoed, 624, 13);
+      if (start) {
+          winstOfVerlies()
+          score()
       }
-      var xVanLetter = 1200 - x;
-      for (var nRl = 0; nRl < random_lijst.length; nRl++) {
-        if (xVanLetter > 775) {
-          c.fillText(random_lijst.at(nRl) + " ", xVanLetter, 240);
-        } else {
-          random_lijst.splice(0, 1);
-          isBijGat = true;
-        }
-        xVanLetter += (10*random_lijst.at(nRl).length)+15;
-      }
-      if (!isBijGat) {
-        x += versnelling;
-      }
-    }
-    window.requestAnimationFrame(lus);
+      window.requestAnimationFrame(lus);
   }
 
   function drawLine(x1, y1, x2,y2, stroke = 'white', width = 3) {
@@ -217,11 +147,93 @@
       lus();
   }
 
+  function doPac() {
+      switch (pac) {
+          case 1 :
+              c.drawImage(pac1, 575, 150);
+              aantal_tekenen += 1;
+              if (aantal_tekenen === 60) {
+                  pac = 4;
+                  aantal_tekenen = 0;
+              }
+              break;
+          case 2:
+              c.drawImage(pac3, 575, 150);
+              aantal_tekenen += 1;
+              if (aantal_tekenen === 60) {
+                  pac = 1;
+                  aantal_tekenen = 0;
+              }
+              break;
+          case 3:
+              c.drawImage(pac4, 575, 150);
+              aantal_tekenen += 1;
+              if (aantal_tekenen === 60) {
+                  pac = 2;
+                  aantal_tekenen = 0;
+              }
+              break
+          case 4:
+              c.drawImage(pac2, 575, 150);
+              aantal_tekenen += 1;
+              if (aantal_tekenen === 60) {
+                  pac = 3;
+                  aantal_tekenen = 0;
+              }
+              break;
+      }
+  }
+
   function indexvan(lijst, obj) {
       for (var i = 0; i < lijst.length; i++) {
           if (lijst.at(i).naam === obj.naam) {
               return i;
           }
+      }
+  }
+
+  function winstOfVerlies() {
+      if (isBijGat) {
+          for (var r = 0; r < 26; r++) {
+              random_lijst.push(geselecteerdeLetters.at(getRandomInt(geselecteerdeLetters.length)));
+          }
+          x = 0;
+          isBijGat = false;
+          levels(level - 1);
+          missers = 0;
+      }
+      if (!random_lijst.length) {
+          for (var n = 0; n < 26; n++) {
+              random_lijst.push(geselecteerdeLetters.at(getRandomInt(geselecteerdeLetters.length)));
+          }
+          x = 0;
+          levels(level + 1);
+          personen[indexvan(personen, geselecteerd_persoon)].diamanten = personen.at(indexvan(personen, geselecteerd_persoon)).diamanten+Math.floor(geselecteerdeLetters.length/2);
+          geselecteerd_persoon.diamanten+=(Math.floor(geselecteerdeLetters.length/2)*Math.ceil(level/5));
+          window.alles_met_localstorage.setPersoon(geselecteerd_persoon.naam, geselecteerd_persoon);
+          window.alles_met_localstorage.setGeselecteerd_persoon(geselecteerd_persoon);
+          if (geselecteerd_persoon.level < level) {
+              personen[indexvan(personen, geselecteerd_persoon)].level = personen.at(indexvan(personen, geselecteerd_persoon)).level = level;
+              geselecteerd_persoon.level = level;
+              window.alles_met_localstorage.setPersoon(geselecteerd_persoon.naam, geselecteerd_persoon);
+          }
+          missers = 0;
+      }
+  }
+
+  function score() {
+      var xVanLetter = 1200 - x;
+      for (var nRl = 0; nRl < random_lijst.length; nRl++) {
+          if (xVanLetter > 775) {
+              c.fillText(random_lijst.at(nRl) + " ", xVanLetter, 240);
+          } else {
+              random_lijst.splice(0, 1);
+              isBijGat = true;
+          }
+          xVanLetter += (10*random_lijst.at(nRl).length)+15;
+      }
+      if (!isBijGat) {
+          x += versnelling;
       }
   }
 </script>

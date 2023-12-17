@@ -9,8 +9,8 @@
 <script src="./alles_met_localstorage.js"></script>
 
 <button onclick="window.location.assign('configureer.html')" style="font: 60px Arial; position: absolute; top: 600px; left: 800px">ga terug</button>
-<button onclick="knoppen_hoeden()" style="font: 60px Arial; position: absolute; top: 500px">Hoeden</button>
-<button onclick="knoppen_monsters()" style="font: 60px Arial; position: absolute; top: 500px; left: 270px">Monsters</button>
+<button id="knoppen_hoeden" onclick="knoppen_hoeden()" style="font: 60px Arial; position: absolute; top: 500px">Hoeden</button>
+<button id="knoppen_monsters" onclick="knoppen_monsters()" style="font: 60px Arial; position: absolute; top: 500px; left: 270px">Monsters</button>
 <h1 style="position: absolute; top: 700px"><strong>Pas op: je kan maar 1 hoed en 1 monster kiezen.</strong></h1>
 <span class="material-symbols-outlined" style="position: absolute; left: 1340px; top: 30px">
     diamond
@@ -30,6 +30,10 @@
   knoppen_hoeden()
 
   function knoppen_hoeden() {
+      var knoppen_monster = document.getElementById("knoppen_monsters")
+      var knoppen_hoed = document.getElementById("knoppen_hoeden")
+      knoppen_monster.style.background = "#646464"
+      knoppen_hoed.style.background = "#ff0000"
       for (var knop of lijst_knoppen) {
           knop.remove()
       }
@@ -37,20 +41,24 @@
       x = 5
       y = 5
       text.innerText = text.innerText = "je hebt: "+geselecteerd_persoon.diamanten
-      maakKnop('<img src="hogehoedlente.png" alt="hogehoed lente">', 'hogehoedlente.png', 'hoed', 30)
-      maakKnop('<img src="heksenhoed.png" alt="heksen hoed">', 'heksenhoed.png', 'hoed', 30)
-      maakKnop('<img src="muts.png" alt="muts" width="100" height="150">', 'muts.png', 'hoed', 20)
-      maakKnop('<img src="hogehoed.png" alt="hogehoed">', 'hogehoed.png', 'hoed', 15)
-      maakKnop('<img src="kerstmuts.png" alt="kerstmuts">', 'kerstmuts.png', 'hoed', 25)
-      maakKnop('<img src="paasei.png" alt="paasei">', 'paasei.png', 'hoed', 30)
-      maakKnop('<img src="spin.png" alt="spin">', 'spin.png', 'hoed', 30)
-      maakKnop('<img src="kroon.png" alt="kroon">', 'kroon.png', 'hoed', 40)
-      maakKnop('<img src="petje.png" alt="petje">', 'petje.png', 'hoed', 5)
-      maakKnop('<img src="luigipet.png" alt="pet van luigi">', 'luigipet.png', 'hoed', 35)
-      maakKnop('<img src="mariopet.png" alt="pet van mario">', 'mariopet.png', 'hoed', 40)
+      maakKnop('<img src="images/hoeden/hogehoedlente.png" alt="hogehoed lente">', 'hogehoedlente.png', 'hoed', 30)
+      maakKnop('<img src="images/hoeden/heksenhoed.png" alt="heksen hoed">', 'heksenhoed.png', 'hoed', 30)
+      maakKnop('<img src="images/hoeden/muts.png" alt="muts" width="100" height="150">', 'muts.png', 'hoed', 20)
+      maakKnop('<img src="images/hoeden/hogehoed.png" alt="hogehoed">', 'hogehoed.png', 'hoed', 15)
+      maakKnop('<img src="images/hoeden/kerstmuts.png" alt="kerstmuts">', 'kerstmuts.png', 'hoed', 25)
+      maakKnop('<img src="images/hoeden/paasei.png" alt="paasei">', 'paasei.png', 'hoed', 30)
+      maakKnop('<img src="images/hoeden/spin.png" alt="spin">', 'spin.png', 'hoed', 30)
+      maakKnop('<img src="images/hoeden/kroon.png" alt="kroon">', 'kroon.png', 'hoed', 40)
+      maakKnop('<img src="images/hoeden/petje.png" alt="petje">', 'petje.png', 'hoed', 5)
+      maakKnop('<img src="images/hoeden/luigipet.png" alt="pet van luigi">', 'luigipet.png', 'hoed', 35)
+      maakKnop('<img src="images/hoeden/mariopet.png" alt="pet van mario">', 'mariopet.png', 'hoed', 40)
   }
 
   function knoppen_monsters() {
+      var knoppen_monster = document.getElementById("knoppen_monsters")
+      var knoppen_hoed = document.getElementById("knoppen_hoeden")
+      knoppen_monster.style.background = "#ff0000"
+      knoppen_hoed.style.background = "#646464"
       for (var knop of lijst_knoppen) {
           knop.remove()
       }
@@ -58,13 +66,13 @@
       x = 5
       y = 5
       text.innerText = text.innerText = "je hebt: "+geselecteerd_persoon.diamanten
-      maakKnop('<img src="paaskonijn4.png" alt="paaskonijn" width="100" height="150">', "paaskonijn", 'monster', 50)
-      maakKnop('<img src="lik4.png" alt="likmonster" width="100" height="150">', "lik", 'monster', 40)
-      maakKnop('<img src="pompoen4.png" alt="pompoen" width="100" height="150">', "pompoen", 'monster', 50)
-      maakKnop('<img src="pacman.png" alt="pacman" width="100" height="150">', "pacman", 'monster', 25)
-      maakKnop('<img src="spook.png" alt="spookje" width="100" height="150">', "spook", 'monster', 10)
-      maakKnop('<img src="luigi.png" alt="luigi" width="100" height="150">', "luigi", 'monster', 55)
-      maakKnop('<img src="mario.png" alt="mario" width="100" height="150">', "mario", 'monster', 60)
+      maakKnop('<img src="images/monsters/paaskonijn4.png" alt="paaskonijn" width="100" height="150">', "paaskonijn", 'monster', 50)
+      maakKnop('<img src="images/monsters/lik4.png" alt="likmonster" width="100" height="150">', "lik", 'monster', 40)
+      maakKnop('<img src="images/monsters/pompoen4.png" alt="pompoen" width="100" height="150">', "pompoen", 'monster', 50)
+      maakKnop('<img src="images/monsters/pacman.png" alt="pacman" width="100" height="150">', "pacman", 'monster', 25)
+      maakKnop('<img src="images/monsters/spook.png" alt="spookje" width="100" height="150">', "spook", 'monster', 10)
+      maakKnop('<img src="images/monsters/luigi.png" alt="luigi" width="100" height="150">', "luigi", 'monster', 55)
+      maakKnop('<img src="images/monsters/mario.png" alt="mario" width="100" height="150">', "mario", 'monster', 60)
   }
 
   function kopen(image, wat, kost) {

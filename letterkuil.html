@@ -25,7 +25,8 @@
             if (persoon.includes("letterkuil-speler-")) {
                 var person = window.alles_met_localstorage.getPersoon(persoon);
                 if (person.hasOwnProperty("kleur")) {
-                    delete person["kleur"];
+                    delete person.kleur;
+                    window.alles_met_localstorage.setPersoon(persoon, person)
                 }
                 personen.push(person);
             } else {

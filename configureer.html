@@ -20,7 +20,7 @@
 <canvas width="1500px" height="500px" id="canvas"></canvas>
 <input class="input" placeholder="selecteer de letters op het toetsenbord" style="position: absolute; top: 630px; left: 550px; width: 590px"/>
 <input id="input" placeholder="voeg één woord of één zin toe" style="position: absolute; top: 400px; left: 300px; width: 300px"/>
-<button onclick="voegToe()" style="position: absolute; top: 400px; left: 600px">voeg toe</button>
+<button onclick="voegToe()" id="voegtoe" style="position: absolute; top: 400px; left: 600px">voeg toe</button>
 <button onclick="azerty()" style="position: absolute; top: 630px; left: 480px">azerty</button>
 <button onclick="qwerty()" style="position: absolute; top: 630px; left: 1200px">qwerty</button>
 <div class="simple-keyboard" style="max-width: 600px; position: absolute; top: 700px; left: 550px"></div>
@@ -102,6 +102,13 @@
   c.fillText(persoon.naam.replace("letterkuil-speler-", ""), 20, 20);
   c.fillText("hoogste level: "+persoon.level, 400, 20);
   c.fillText("diamanten: "+persoon.diamanten, 700, 20);
+  var voegtoe = document.getElementById("voegtoe");
+  var input = document.getElementById("input");
+  input.addEventListener("keyup", function (ev) {
+      if (ev.key === "Enter") {
+          voegtoe.click()
+      }
+  })
 
   function selectAlles() {
       for (var l of alfabet) {
