@@ -19,6 +19,9 @@
     var text;
     var personen = [];
     var lijst_personen = window.alles_met_localstorage.getLijst_met_personen();
+    if (lijst_personen == null) {
+        lijst_personen = []
+    }
     window.alles_met_localstorage.check();
     if (lijst_personen) {
         for (var persoon of lijst_personen) {

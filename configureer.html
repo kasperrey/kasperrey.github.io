@@ -50,42 +50,7 @@
       onChange: input => onChange(input),
       onKeyPress: button => onKeyPress(button)
   });
-  myKeyboard.setOptions({
-      layout: {
-          'default': [
-              `² & é " ' ( § è ! ç à ) - {bksp}`,
-              '{tab} a z e r t y u i o p ^ $ {enter}',
-              '{lock} q s d f g h j k l m ù µ {enter}',
-              '{shift} < w x c v b n , ; : = {shift}',
-              '{ctrl} {alt} {space} {altgr} {ctrl}'
-          ],
-          'shift': [
-              '³ 1 2 3 4 5 6 7 8 9 0 ° _ {bksp}',
-              '{tab} A Z E R T Y U I O P ¨ * {enter}',
-              '{lock} Q S D F G H J K L M % £ {enter}',
-              '{shift} > W X C V B N ? . / + {shift}',
-              '{ctrl} {alt} {space} {altgr} {ctrl}'
-          ],
-          'AltGr': [
-              '¬ | @ # ¼ ½ ^ { [ { } \\ ¸ {bksp}',
-              '{tab} @ ł € ¶ ŧ ← ↓ → œ þ [ ] {enter}',
-              '{lock} æ ß ð đ ŋ ħ ˀ ĸ ł \' \´ \` {enter}',
-              '{shift} \\ « » ¢ “ ” n ¸ ─ · ~ {shift}',
-              '{ctrl} {alt} {space} {altgr} {ctrl}'
-          ]
-      },
-      display: {
-          '{bksp}': 'backspace',
-          '{enter}': 'enter',
-          '{tab}': 'tab',
-          '{lock}': 'lock',
-          '{shift}': 'shift',
-          '{ctrl}': 'Ctrl',
-          '{alt}': 'Alt',
-          '{space}': ' ',
-          '{altgr}': 'AltGr',
-      }
-  });
+  azerty()
 
   myKeyboard.addButtonTheme("{ctrl} {alt} {altgr}", "key-grootte");
 
