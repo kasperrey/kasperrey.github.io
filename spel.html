@@ -29,8 +29,12 @@
   for (var persoon of lijst_personen) {
     personen.push(window.alles_met_localstorage.getPersoon(persoon));
   }
-  var geselecteerd_persoon = window.alles_met_localstorage.getGeselecteerd_persoon();
-  var geselecteerdeLetters = window.alles_met_localstorage.getGeselecteerde_letters();
+  try {
+      var geselecteerd_persoon = window.alles_met_localstorage.getGeselecteerd_persoon();
+      var geselecteerdeLetters = window.alles_met_localstorage.getGeselecteerde_letters();
+  } catch (e) {
+      window.location.assign("letterkuil.html")
+  }
   var canvas = document.getElementById("canvas");
   var c = canvas.getContext('2d');
   c.font = "20px Arial";
