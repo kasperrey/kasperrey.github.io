@@ -26,12 +26,19 @@
   var random_lijst = [];
 
   lijst_personen = window.alles_met_localstorage.getLijst_met_personen()
+  console.log(lijst_personen)
+  if (lijst_personen === undefined || lijst_personen === null) {
+      window.location.assign("letterkuil.html")
+  }
   for (var persoon of lijst_personen) {
     personen.push(window.alles_met_localstorage.getPersoon(persoon));
   }
   try {
       var geselecteerd_persoon = window.alles_met_localstorage.getGeselecteerd_persoon();
       var geselecteerdeLetters = window.alles_met_localstorage.getGeselecteerde_letters();
+      if (geselecteerd_persoon === undefined || geselecteerd_persoon === null || geselecteerdeLetters === undefined || geselecteerdeLetters === null) {
+          window.location.assign("letterkuil.html")
+      }
   } catch (e) {
       window.location.assign("letterkuil.html")
   }
