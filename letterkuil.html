@@ -108,6 +108,7 @@
 
     function deleteSpeler(ev) {
         lijst_personen.splice(lijst_personen.indexOf(ev.currentTarget.delete), 1)
+        personen.splice(lijst_personen.indexOf(ev.currentTarget.delete), 1)
         window.alles_met_localstorage.remove(ev.currentTarget.delete)
         window.alles_met_localstorage.setLijst_met_personen(lijst_personen)
         for (var b of beginDingen) {
