@@ -10,6 +10,7 @@
 
 <button onclick="speel_spel()" style="font: 30px Arial; position: absolute; top: 300px; left: 1000px">speel spel</button>
 <button onclick="createSpeler()" id="maak speler" style="position: absolute; top: 650px; left: 680px">maak speler</button>
+<button onclick="verwijder_alles()">verwijder alles</button>
 <input style="position: absolute; top: 650px; left: 500px" id="input" placeholder="nieuwe speler naam">
 <h1 style="font: 70px Arial; position: absolute; top: 80px; left: 500px">L   e   t   t   e   r   k   u   i   l</h1>
 
@@ -80,9 +81,9 @@
                 if (geselcteerdeSpeler) {
                     geselcteerdeSpeler.style.background = "#868686"
                 }
-                ev.currentTarget.style.background = "#0d8600"
                 geselcteerdeSpeler = ev.currentTarget
-                window.alles_met_localstorage.setGeselecteerd_persoon(personen.at(lijst_personen.indexOf(ev.currentTarget.persoon)))
+                geselcteerdeSpeler.style.background = "#0d8600"
+                window.alles_met_localstorage.setGeselecteerd_persoon(personen.at(lijst_personen.indexOf(geselcteerdeSpeler.persoon)))
             }
             deleteButton.delete = persoon
             deleteButton.style.position = "absolute";
@@ -111,6 +112,7 @@
         personen.splice(lijst_personen.indexOf(ev.currentTarget.delete), 1)
         window.alles_met_localstorage.remove(ev.currentTarget.delete)
         window.alles_met_localstorage.setLijst_met_personen(lijst_personen)
+        window.alles_met_localstorage.setGeselecteerd_persoon({});
         for (var b of beginDingen) {
             b.remove()
         }
@@ -141,45 +143,41 @@
     }
 
     function verander(ev) {
-        persoonV = window.alles_met_localstorage.getPersoon(ev.currentTarget.setting)
-        index = lijst_personen.indexOf(persoonV.naam)
-        var input = document.getElementById("input")
-        var button = document.getElementById("maak speler")
-        lijst_personen.splice(index, 1)
-        window.alles_met_localstorage.remove(persoonV.naam)
-        input.value = ""
-        input.placeholder = "nieuwe naam"
-        button.innerText = "verander naam"
+        persoonV = window.alles_met_localstorage.getPersoon(ev.currentTarget.setting);
+        var input = document.getElementById("input");
+        var button = document.getElementById("maak speler");
+        input.value = "";
+        input.placeholder = "nieuwe naam";
+        button.innerText = "verander naam";
         button.onclick = function () {
-            persoonV.naam = "letterkuil-speler-"+input.value
-            sla_op(index, persoonV)
+            sla_op(persoonV);
         }
     }
 
-    function sla_op(index, persoon) {
-        var input = document.getElementById("input")
-        var button = document.getElementById("maak speler")
-        lijst_personen.splice(index, 0, persoon.naam)
-        personen.splice(index, 0, persoon)
-        window.alles_met_localstorage.setPersoon(persoon.naam, persoon)
-        window.alles_met_localstorage.setLijst_met_personen(lijst_personen)
-        input.value = ""
-        input.placeholder = "nieuwe speler naam"
-        button.innerText = "maak speler"
-        button.onclick = createSpeler
+    function sla_op(persoon) {
+        var input = document.getElementById("input");
+        var button = document.getElementById("maak speler");
+        index = lijst_personen.indexOf(persoonV.naam);
+        lijst_personen.splice(index, 1);
+        window.alles_met_localstorage.remove(persoonV.naam);
+        persoonV.naam = "letterkuil-speler-"+input.value;
+
+        lijst_personen.splice(index, 0, persoon.naam);
+        personen.splice(index, 0, persoon);
+        window.alles_met_localstorage.setPersoon(persoon.naam, persoon);
+        window.alles_met_localstorage.setLijst_met_personen(lijst_personen);
+        input.value = "";
+        input.placeholder = "nieuwe speler naam";
+        button.innerText = "maak speler";
+        button.onclick = createSpeler;
         for (var b of beginDingen) {
-            b.remove()
+            b.remove();
         }
-        beginDingen = []
-        beginscherm()
+        beginDingen = [];
+        beginscherm();
     }
 
     function speel_spel() {
-        if (persoonV !== undefined) {
-            if (persoonV.naam.length !== undefined) {
-                sla_op(index, persoonV)
-            }
-        }
         if (text) {
             text.remove()
         }
@@ -193,6 +191,11 @@
             text.style.left = "700px"
             document.body.appendChild(text)
         }
+    }
+
+    function verwijder_alles() {
+        localStorage.clear()
+        window.location.assign("");
     }
 </script>
 </body>
