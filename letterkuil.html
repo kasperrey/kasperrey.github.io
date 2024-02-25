@@ -75,7 +75,7 @@
             } else {
                 button.style.background = "#0d8600"
                 geselcteerdeSpeler = button
-                window.alles_met_localstorage.setGeselecteerd_persoon(personen.at(lijst_personen.indexOf(persoon)))
+                window.alles_met_localstorage.setGeselecteerd_persoon(personen[lijst_personen.indexOf(persoon)])
             }
             button.onclick = function (ev) {
                 if (geselcteerdeSpeler) {
@@ -83,7 +83,7 @@
                 }
                 geselcteerdeSpeler = ev.currentTarget
                 geselcteerdeSpeler.style.background = "#0d8600"
-                window.alles_met_localstorage.setGeselecteerd_persoon(personen.at(lijst_personen.indexOf(geselcteerdeSpeler.persoon)))
+                window.alles_met_localstorage.setGeselecteerd_persoon(personen[lijst_personen.indexOf(geselcteerdeSpeler.persoon)])
             }
             deleteButton.delete = persoon
             deleteButton.style.position = "absolute";
