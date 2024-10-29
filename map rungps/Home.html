@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Home rungps loader</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+          crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+            crossorigin=""></script>
+
+    <script src="https://www.puck-js.com/puck.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.5/dist/chart.umd.min.js"></script>
+
+    <link rel="stylesheet" href="Home.css">
+</head>
+<body>
+<script src="calculations.js"></script>
+
+<div id="map"></div>
+<div id="charts">
+    <canvas id="heart_rateChart" class="Chart"></canvas>
+    <canvas id="speedChart" class="Chart"></canvas>
+    <canvas id="altitudeChart" class="Chart"></canvas>
+</div>
+<div class="data" id="tooltip">
+    <p id="heart_rate">heart rate: 0 bpm</p>
+    <p id="speed">speed: 0:0 min/km</p>
+    <p id="altitude">altitude: 0m</p>
+    <p id="time">time: 0:00:00</p>
+</div>
+<div class="data">
+    <p id="distance">0km</p>
+    <p id="averageSpeed">0:0min/km</p>
+</div>
+<div id="inputDiv">
+    <button id="btnConnect">Connect</button>
+    <button id="Read">Read</button>
+    <label for="input"></label><input id="input">
+</div>
+<script>
+    var text = "";
+    var points = []
+    let place;
+    let xTime;
+    const groep = new L.featureGroup();
+    const heart_rateData = document.getElementById("heart_rate");
+    const speedData = document.getElementById("speed");
+    const altData = document.getElementById("altitude");
+    const timeData = document.getElementById("time");
+
+    function show(map, heart_rateChart, speedChart, altChart) {
+        points = window.calculations.translateData(text);
+        var vorig = points[0];
+        L.circle([vorig.lat, vorig.long], {
+            color: 'green',
+            fillColor: '#00ff00',
+            fillOpacity: 1,
+            radius: 2
+        }).addTo(map);
+
+        L.circle([points[points.length-1].lat, points[points.length-1].long], {
+            color: 'purple',
+            fillColor: '#7300ff',
+            fillOpacity: 1,
+            radius: 2
+        }).addTo(map);
+
+        for (let i = 1; i < points.length; i++) {
+            let point = points[i];
+            var pointList = [new L.LatLng(vorig.lat, vorig.long), new L.LatLng(point.lat, point.long)];
+
+            var firstpolyline = new L.Polyline(pointList, {
+                color: 'red',
+                weight: 3,
+                opacity: 0.5,
+                smoothFactor: 1
+            });
+
+            groep.addLayer(firstpolyline);
+            map.addLayer(firstpolyline);
+
+            let time = window.calculations.convertSecondstoTime(point.time);
+            if (point.heart_rate) {
+                heart_rateChart.data.datasets[0].pointBackgroundColor.push("red");
+                heart_rateChart.data.datasets[0].pointRadius.push(1);
+                heart_rateChart.data.datasets[0].data.push(point.heart_rate);
+                heart_rateChart.data.labels.push(time);
+                heart_rateChart.update();
+            }
+            if (point.speed !== 0) {
+                speedChart.data.datasets[0].pointBackgroundColor.push("blue");
+                speedChart.data.datasets[0].pointRadius.push(1);
+                speedChart.data.datasets[0].data.push(60 / point.speed);
+                speedChart.data.labels.push(time);
+                speedChart.update();
+            }
+            if (point.alt) {
+                altChart.data.datasets[0].pointBackgroundColor.push("grey");
+                altChart.data.datasets[0].pointRadius.push(1);
+                altChart.data.datasets[0].data.push(point.alt);
+                altChart.data.labels.push(time);
+                altChart.update();
+            }
+
+            vorig = points[i]
+        }
+
+        map.fitBounds(groep.getBounds());
+        [document.getElementById("averageSpeed").innerText, document.getElementById("distance").innerText] = window.calculations.getAverageSpeedAndDistance(points);
+    }
+
+    let map = L.map('map').setView([0, 0], 0);
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(map);
+
+    const heart_rateChart = new Chart(document.getElementById("heart_rateChart").getContext("2d"), {
+        type: "line",
+        data: {
+            labels: [],
+            datasets: [{
+                borderColor: "rgb(255,0,0)",
+                data: [],
+                label: "# Heart rate",
+                pointBackgroundColor: [],
+                pointRadius: []
+            }]
+        },
+        options: {
+            animation: false,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Heart rate'
+                },
+                tooltip: {
+                    enabled: true,
+                    callbacks: {
+                        label: function (tooltipData) {
+                            const [values, labels] = labelMaker(tooltipData, "heart rate");
+
+                            return `${labels}: ${values} bpm`;
+                        }
+                    },
+                    intersect: false,
+                    mode: "index"
+                }
+            }
+        },
+        plugins: [{
+            afterDraw: function (chart) {
+                if (xTime) {
+                    const ctx = chart.ctx;
+                    const xAxis = chart.scales.x;
+
+                    // Draw vertical line at x-axis value 4
+                    const xValue = xAxis.getPixelForValue(xTime);
+                    ctx.save();
+                    ctx.strokeStyle = 'rgb(255, 99, 132)';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(xValue, 0);
+                    ctx.lineTo(xValue, chart.height);
+                    ctx.stroke();
+                    ctx.restore();
+                }
+            }
+        }]
+    });
+    const speedChart = new Chart(document.getElementById("speedChart").getContext("2d"), {
+        type: "line",
+        data: {
+            labels: [],
+            datasets: [{
+                borderColor: "rgb(0,0,255)",
+                data: [],
+                label: "# Speed min/km",
+                pointBackgroundColor: [],
+                pointRadius: []
+            }]
+        },
+        options: {
+            animation: false,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Speed'
+                },
+                tooltip: {
+                    enabled: true,
+                    callbacks: {
+                        label: function (tooltipData) {
+                            const [values, labels] = labelMaker(tooltipData, "speed");
+
+                            return `${labels}: ${Math.floor(values)}:${Math.floor(values * 60 % 60)} min/km`;
+                        }
+                    },
+                    intersect: false,
+                    mode: "index"
+                }
+            },
+            scales: {
+                y: {
+                    min: 0,
+                    max: 15,
+                }
+            }
+        },
+        plugins: [{
+            afterDraw: function (chart) {
+                if (xTime) {
+                    const ctx = chart.ctx;
+                    const xAxis = chart.scales.x;
+
+                    // Draw vertical line at x-axis value 4
+                    const xValue = xAxis.getPixelForValue(xTime);
+                    ctx.save();
+                    ctx.strokeStyle = 'rgb(255, 99, 132)';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(xValue, 0);
+                    ctx.lineTo(xValue, chart.height);
+                    ctx.stroke();
+                    ctx.restore();
+                }
+            }
+        }]
+    });
+    const altChart = new Chart(document.getElementById("altitudeChart").getContext("2d"), {
+        type: "line",
+        data: {
+            labels: [],
+            datasets: [{
+                borderColor: "rgb(112,112,112)",
+                backgroundColor: "rgb(112,112,112)",
+                data: [],
+                label: "# altitude",
+                pointBackgroundColor: [],
+                pointRadius: []
+            }]
+        },
+        options: {
+            animation: false,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'altitude in meters'
+                },
+                tooltip: {
+                    enabled: true,
+                    callbacks: {
+                        label: function (tooltipData) {
+                            const [values, labels] = labelMaker(tooltipData, "altitude");
+
+                            return `${labels}: ${values} m`;
+                        }
+                    },
+                    intersect: false,
+                    mode: "index"
+                }
+            }
+        },
+        plugins: [{
+            afterDraw: function (chart) {
+                if (xTime) {
+                    const ctx = chart.ctx;
+                    const xAxis = chart.scales.x;
+
+                    // Draw vertical line at x-axis value 4
+                    const xValue = xAxis.getPixelForValue(xTime);
+                    ctx.save();
+                    ctx.strokeStyle = 'rgb(255, 99, 132)';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(xValue, 0);
+                    ctx.lineTo(xValue, chart.height);
+                    ctx.stroke();
+                    ctx.restore();
+                }
+            }
+        }]
+    });
+
+    getData();
+
+    function getData() {
+        var connection;
+        document.getElementById("btnConnect").addEventListener("click", function () {
+            // disconnect if connected already
+            if (connection) {
+                connection.close();
+                connection = undefined;
+            }
+            // Connect
+            Puck.connect(function (c) {
+                if (!c) {
+                    alert("Couldn't connect!");
+                    return;
+                }
+                connection = c;
+                // Handle the data we get back, and call 'onLine'
+                // whenever we get a line
+                connection.on("data", function (d) {
+                    var l = "";
+                    for (var char of d.split("")) {
+                        if (char === "0" || char === "1" || char === "2" || char === "3" || char === "4" || char === "5" ||
+                            char === "6" || char === "7" || char === "8" || char === "9" || char === " " ||
+                            char === "," || char === "." || char === "\n") {
+                            l += char;
+                        } else if (char === "]") {
+                            text += l;
+                            console.log(text);
+                            show(map, heart_rateChart, speedChart, altChart)
+                        }
+                    }
+                    text += l;
+                });
+
+                document.getElementById("Read").addEventListener("click", function() {
+                    console.log(document.getElementById("input").value);
+                    var BANGLE_CODE = `
+var f = require("Storage").open("rungps.`+document.getElementById("input").value+`.csv","r");
+var l = f.readLine();
+while (l != undefined) {
+    Bluetooth.print(l);
+    var l = f.readLine();
+}`;
+
+                    connection.write("reset();\n", function () {
+                        setTimeout(function () {
+                            connection.write("\x03\x10if(1){" + BANGLE_CODE + "}\n",
+                                function () {
+                                    console.log("Ready...");
+                                });
+                        }, 1500);
+                    });
+                });
+            });
+        });
+    }
+
+    function labelMaker(tooltipData, chart) {
+        const labels = tooltipData.dataset.label.toString();
+        const values = tooltipData.dataset.data[tooltipData.dataIndex];
+        const xLabel = tooltipData.label.toString();
+        let index = window.calculations.getIndexByTime(xLabel, points);
+        let point = points[index];
+
+        heart_rateData.innerText = "heart rate: "+point.heart_rate+" bpm";
+        speedData.innerText = "speed: "+Math.floor(60 / point.speed)+":"+Math.floor(60 / point.speed * 60 % 60)+" min/km";
+        altData.innerText = "alt: "+point.alt+"m";
+        timeData.innerText = "time: "+window.calculations.convertSecondstoTime(point.time);
+
+        if (place) {
+            place.removeFrom(map);
+        }
+        place = L.circle([point.lat, point.long], {
+            color: 'blue',
+            fillColor: '#0000ff',
+            fillOpacity: 1,
+            radius: 1
+        }).addTo(map);
+
+        xTime = index
+        if (chart !== "heart rate")
+            heart_rateChart.update();
+        if (chart !== "speed")
+            speedChart.update();
+        if (chart !== "altitude")
+            altChart.update();
+
+        return [values, labels];
+    }
+</script>
+</body>
+</html>

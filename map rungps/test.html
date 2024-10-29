@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+    <title>Chart.js Vertical Line Example</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.5/dist/chart.umd.min.js"></script>
+</head>
+
+<body>
+<div style="width: 80%; margin: auto;">
+
+    <canvas id="myChart"></canvas>
+</div>
+
+<script>
+    var myChart;
+    let xLabel = 1;
+
+    const config = {
+        type: 'line',
+        data: {
+            labels: ['January',
+                'February',
+                'March',
+                'April',
+                'May',
+                'June',
+                'July'],
+            datasets: [{
+                label: 'My First Dataset',
+                data: [65, 59, 80, 81, 56, 55, 40],
+                fill: false,
+                borderColor: 'rgb(75, 192, 192)',
+                tension: 0.1
+            }]
+        },
+        options: {
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    grid: {
+                        display: false
+                    }
+                },
+                y: {
+                    beginAtZero: true
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                },
+                title: {
+                    display: true,
+                    text: 'Heart rate'
+                },
+                tooltip: {
+                    callbacks: {
+                        enabled: true,
+                        label: function (tooltipData) {
+                            const labels = tooltipData.dataset.label.toString();
+                            const values = tooltipData.dataset.data[tooltipData.dataIndex];
+                            xLabel = f(tooltipData.label.toString());
+
+                            return `${labels}: ${values} m`;
+                        }
+                    },
+                    intersect: false,
+                    mode: "index"
+                },
+            },
+        },
+        plugins: [{
+            afterDraw: function (chart) {
+                const ctx = chart.ctx;
+                const xAxis = chart.scales.x;
+
+                // Draw vertical line at x-axis value 4
+                const xValue = xAxis.getPixelForValue(xLabel);
+                ctx.save();
+                ctx.strokeStyle = 'rgb(255, 99, 132)';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(xValue, 0);
+                ctx.lineTo(xValue, chart.height);
+                ctx.stroke();
+                ctx.restore();
+            }
+        }]
+    };
+
+
+    const ctx = document.getElementById('myChart').getContext('2d');
+    myChart = new Chart(ctx, config);
+
+    function f(month) {
+        const months = ['January',
+            'February',
+            'March',
+            'April',
+            'May',
+            'June',
+            'July']
+        for (let i = 0; i < months.length; i++) {
+            if (months[i] === month) {
+                return i;
+            }
+        }
+        return  -1;
+    }
+</script>
+</body>
+
+</html>
