@@ -10,10 +10,8 @@
             integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
             crossorigin=""></script>
 
-    <script src="https://www.puck-js.com/puck.js"></script>
-
+    <script src="../../core/lib/interface.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.5/dist/chart.umd.min.js"></script>
-
     <link rel="stylesheet" href="Home.css">
 </head>
 <body>
@@ -37,328 +35,121 @@
     <p id="averageSpeed">0:0min/km</p>
 </div>
 <div id="inputDiv">
-    <button id="btnConnect">Connect</button>
     <button id="Read">Read</button>
-    <label for="input"></label><input id="input">
+    <label for="input"></label><input id="input" placeholder="gpspoilog.csv">
 </div>
+
 <script>
-    var text = "";
-    var points = []
-    let place;
-    let xTime;
-    const groep = new L.featureGroup();
-    const heart_rateData = document.getElementById("heart_rate");
-    const speedData = document.getElementById("speed");
-    const altData = document.getElementById("altitude");
-    const timeData = document.getElementById("time");
+let text = "";
+let points = [];
+let place;
+let xTime;
+const groep = new L.featureGroup();
 
-    function show(map, heart_rateChart, speedChart, altChart) {
-        points = window.calculations.translateData(text);
-        var vorig = points[0];
-        L.circle([vorig.lat, vorig.long], {
-            color: 'green',
-            fillColor: '#00ff00',
-            fillOpacity: 1,
-            radius: 2
-        }).addTo(map);
+const heart_rateData = document.getElementById("heart_rate");
+const speedData = document.getElementById("speed");
+const altData = document.getElementById("altitude");
+const timeData = document.getElementById("time");
 
-        L.circle([points[points.length-1].lat, points[points.length-1].long], {
-            color: 'purple',
-            fillColor: '#7300ff',
-            fillOpacity: 1,
-            radius: 2
-        }).addTo(map);
+// --- Initialize Map ---
+let map = L.map('map').setView([0, 0], 0);
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+}).addTo(map);
 
-        for (let i = 1; i < points.length; i++) {
-            let point = points[i];
-            var pointList = [new L.LatLng(vorig.lat, vorig.long), new L.LatLng(point.lat, point.long)];
-
-            var firstpolyline = new L.Polyline(pointList, {
-                color: 'red',
-                weight: 3,
-                opacity: 0.5,
-                smoothFactor: 1
-            });
-
-            groep.addLayer(firstpolyline);
-            map.addLayer(firstpolyline);
-
-            let time = window.calculations.convertSecondstoTime(point.time);
-            if (point.heart_rate) {
-                heart_rateChart.data.datasets[0].pointBackgroundColor.push("red");
-                heart_rateChart.data.datasets[0].pointRadius.push(1);
-                heart_rateChart.data.datasets[0].data.push(point.heart_rate);
-                heart_rateChart.data.labels.push(time);
-                heart_rateChart.update();
+// --- Initialize Charts ---
+function createChart(canvasId, color, labelText) {
+    return new Chart(document.getElementById(canvasId).getContext("2d"), {
+        type: "line",
+        data: { labels: [], datasets: [{ borderColor: color, data: [], label: labelText, pointBackgroundColor: [], pointRadius: [] }] },
+        options: {
+            animation: false,
+            plugins: {
+                title: { display: true, text: labelText },
+                tooltip: { intersect: false, mode: "index" }
             }
-            if (point.speed !== 0) {
-                speedChart.data.datasets[0].pointBackgroundColor.push("blue");
-                speedChart.data.datasets[0].pointRadius.push(1);
-                speedChart.data.datasets[0].data.push(60 / point.speed);
-                speedChart.data.labels.push(time);
-                speedChart.update();
-            }
-            if (point.alt) {
-                altChart.data.datasets[0].pointBackgroundColor.push("grey");
-                altChart.data.datasets[0].pointRadius.push(1);
-                altChart.data.datasets[0].data.push(point.alt);
-                altChart.data.labels.push(time);
-                altChart.update();
-            }
-
-            vorig = points[i]
         }
-
-        map.fitBounds(groep.getBounds());
-        [document.getElementById("averageSpeed").innerText, document.getElementById("distance").innerText] = window.calculations.getAverageSpeedAndDistance(points);
-    }
-
-    let map = L.map('map').setView([0, 0], 0);
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-    }).addTo(map);
-
-    const heart_rateChart = new Chart(document.getElementById("heart_rateChart").getContext("2d"), {
-        type: "line",
-        data: {
-            labels: [],
-            datasets: [{
-                borderColor: "rgb(255,0,0)",
-                data: [],
-                label: "# Heart rate",
-                pointBackgroundColor: [],
-                pointRadius: []
-            }]
-        },
-        options: {
-            animation: false,
-            plugins: {
-                title: {
-                    display: true,
-                    text: 'Heart rate'
-                },
-                tooltip: {
-                    enabled: true,
-                    callbacks: {
-                        label: function (tooltipData) {
-                            const [values, labels] = labelMaker(tooltipData, "heart rate");
-
-                            return `${labels}: ${values} bpm`;
-                        }
-                    },
-                    intersect: false,
-                    mode: "index"
-                }
-            }
-        },
-        plugins: [{
-            afterDraw: function (chart) {
-                if (xTime) {
-                    const ctx = chart.ctx;
-                    const xAxis = chart.scales.x;
-
-                    // Draw vertical line at x-axis value 4
-                    const xValue = xAxis.getPixelForValue(xTime);
-                    ctx.save();
-                    ctx.strokeStyle = 'rgb(255, 99, 132)';
-                    ctx.lineWidth = 2;
-                    ctx.beginPath();
-                    ctx.moveTo(xValue, 0);
-                    ctx.lineTo(xValue, chart.height);
-                    ctx.stroke();
-                    ctx.restore();
-                }
-            }
-        }]
-    });
-    const speedChart = new Chart(document.getElementById("speedChart").getContext("2d"), {
-        type: "line",
-        data: {
-            labels: [],
-            datasets: [{
-                borderColor: "rgb(0,0,255)",
-                data: [],
-                label: "# Speed min/km",
-                pointBackgroundColor: [],
-                pointRadius: []
-            }]
-        },
-        options: {
-            animation: false,
-            plugins: {
-                title: {
-                    display: true,
-                    text: 'Speed'
-                },
-                tooltip: {
-                    enabled: true,
-                    callbacks: {
-                        label: function (tooltipData) {
-                            const [values, labels] = labelMaker(tooltipData, "speed");
-
-                            return `${labels}: ${Math.floor(values)}:${Math.floor(values * 60 % 60)} min/km`;
-                        }
-                    },
-                    intersect: false,
-                    mode: "index"
-                }
-            },
-            scales: {
-                y: {
-                    min: 0,
-                    max: 15,
-                }
-            }
-        },
-        plugins: [{
-            afterDraw: function (chart) {
-                if (xTime) {
-                    const ctx = chart.ctx;
-                    const xAxis = chart.scales.x;
-
-                    // Draw vertical line at x-axis value 4
-                    const xValue = xAxis.getPixelForValue(xTime);
-                    ctx.save();
-                    ctx.strokeStyle = 'rgb(255, 99, 132)';
-                    ctx.lineWidth = 2;
-                    ctx.beginPath();
-                    ctx.moveTo(xValue, 0);
-                    ctx.lineTo(xValue, chart.height);
-                    ctx.stroke();
-                    ctx.restore();
-                }
-            }
-        }]
-    });
-    const altChart = new Chart(document.getElementById("altitudeChart").getContext("2d"), {
-        type: "line",
-        data: {
-            labels: [],
-            datasets: [{
-                borderColor: "rgb(112,112,112)",
-                backgroundColor: "rgb(112,112,112)",
-                data: [],
-                label: "# altitude",
-                pointBackgroundColor: [],
-                pointRadius: []
-            }]
-        },
-        options: {
-            animation: false,
-            plugins: {
-                title: {
-                    display: true,
-                    text: 'altitude in meters'
-                },
-                tooltip: {
-                    enabled: true,
-                    callbacks: {
-                        label: function (tooltipData) {
-                            const [values, labels] = labelMaker(tooltipData, "altitude");
-
-                            return `${labels}: ${values} m`;
-                        }
-                    },
-                    intersect: false,
-                    mode: "index"
-                }
-            }
-        },
-        plugins: [{
-            afterDraw: function (chart) {
-                if (xTime) {
-                    const ctx = chart.ctx;
-                    const xAxis = chart.scales.x;
-
-                    // Draw vertical line at x-axis value 4
-                    const xValue = xAxis.getPixelForValue(xTime);
-                    ctx.save();
-                    ctx.strokeStyle = 'rgb(255, 99, 132)';
-                    ctx.lineWidth = 2;
-                    ctx.beginPath();
-                    ctx.moveTo(xValue, 0);
-                    ctx.lineTo(xValue, chart.height);
-                    ctx.stroke();
-                    ctx.restore();
-                }
-            }
-        }]
-    });
-
-    getData();
-
-    function getData() {
-    let text = "";
-
-    const btnConnect = document.getElementById("btnConnect");
-    const btnRead = document.getElementById("Read");
-    const inputField = document.getElementById("input");
-
-    function filterData(data) {
-        // Allow only digits, spaces, commas, periods, newlines
-        return data.replace(/[^0-9 ,.\n]/g, "");
-    }
-
-    function handleFile(data) {
-        if (!data) {
-            console.log("No data found in gpspoilog.csv");
-            return;
-        }
-        text = filterData(data);
-        console.log("Loaded file content:", text);
-        show(map, heart_rateChart, speedChart, altChart);
-    }
-
-    function connectAndRead() {
-        Util.connectDevice().then(() => {
-            console.log("Connected!");
-            const fileName = inputField.value || "gpspoilog.csv";
-            Util.readStorageFile(fileName, handleFile);
-        }).catch(err => {
-            alert("Couldn't connect: " + err);
-        });
-    }
-
-    btnConnect.addEventListener("click", connectAndRead);
-    btnRead.addEventListener("click", () => {
-        const fileName = inputField.value || "gpspoilog.csv";
-        Util.readStorageFile(fileName, handleFile);
     });
 }
 
-    function labelMaker(tooltipData, chart) {
-        const labels = tooltipData.dataset.label.toString();
-        const values = tooltipData.dataset.data[tooltipData.dataIndex];
-        const xLabel = tooltipData.label.toString();
-        let index = window.calculations.getIndexByTime(xLabel, points);
-        let point = points[index];
+const heart_rateChart = createChart("heart_rateChart", "rgb(255,0,0)", "Heart rate");
+const speedChart = createChart("speedChart", "rgb(0,0,255)", "Speed");
+const altChart = createChart("altitudeChart", "rgb(112,112,112)", "Altitude");
 
-        heart_rateData.innerText = "heart rate: "+point.heart_rate+" bpm";
-        speedData.innerText = "speed: "+Math.floor(60 / point.speed)+":"+Math.floor(60 / point.speed * 60 % 60)+" min/km";
-        altData.innerText = "alt: "+point.alt+"m";
-        timeData.innerText = "time: "+window.calculations.convertSecondstoTime(point.time);
+// --- Display points & update charts ---
+function show(map, heart_rateChart, speedChart, altChart) {
+    points = window.calculations.translateData(text);
+    let vorig = points[0];
 
-        if (place) {
-            place.removeFrom(map);
-        }
-        place = L.circle([point.lat, point.long], {
-            color: 'blue',
-            fillColor: '#0000ff',
-            fillOpacity: 1,
-            radius: 1
-        }).addTo(map);
+    // start and end points
+    L.circle([vorig.lat, vorig.long], { color: 'green', fillColor: '#00ff00', fillOpacity: 1, radius: 2 }).addTo(map);
+    L.circle([points[points.length-1].lat, points[points.length-1].long], { color: 'purple', fillColor: '#7300ff', fillOpacity: 1, radius: 2 }).addTo(map);
 
-        xTime = index
-        if (chart !== "heart rate")
+    for (let i = 1; i < points.length; i++) {
+        const point = points[i];
+        const line = new L.Polyline([ [vorig.lat, vorig.long], [point.lat, point.long] ], { color: 'red', weight: 3, opacity: 0.5 });
+        groep.addLayer(line);
+        map.addLayer(line);
+
+        const time = window.calculations.convertSecondstoTime(point.time);
+
+        if (point.heart_rate) {
+            heart_rateChart.data.datasets[0].pointBackgroundColor.push("red");
+            heart_rateChart.data.datasets[0].pointRadius.push(1);
+            heart_rateChart.data.datasets[0].data.push(point.heart_rate);
+            heart_rateChart.data.labels.push(time);
             heart_rateChart.update();
-        if (chart !== "speed")
+        }
+        if (point.speed !== 0) {
+            speedChart.data.datasets[0].pointBackgroundColor.push("blue");
+            speedChart.data.datasets[0].pointRadius.push(1);
+            speedChart.data.datasets[0].data.push(60 / point.speed);
+            speedChart.data.labels.push(time);
             speedChart.update();
-        if (chart !== "altitude")
+        }
+        if (point.alt) {
+            altChart.data.datasets[0].pointBackgroundColor.push("grey");
+            altChart.data.datasets[0].pointRadius.push(1);
+            altChart.data.datasets[0].data.push(point.alt);
+            altChart.data.labels.push(time);
             altChart.update();
+        }
 
-        return [values, labels];
+        vorig = point;
     }
+
+    map.fitBounds(groep.getBounds());
+    [document.getElementById("averageSpeed").innerText, document.getElementById("distance").innerText] = window.calculations.getAverageSpeedAndDistance(points);
+}
+
+// --- Tooltip update ---
+function labelMaker(tooltipData, chart) {
+    const values = tooltipData.dataset.data[tooltipData.dataIndex];
+    const xLabel = tooltipData.label.toString();
+    const index = window.calculations.getIndexByTime(xLabel, points);
+    const point = points[index];
+
+    heart_rateData.innerText = "heart rate: "+point.heart_rate+" bpm";
+    speedData.innerText = "speed: "+Math.floor(60 / point.speed)+":"+Math.floor(60 / point.speed * 60 % 60)+" min/km";
+    altData.innerText = "altitude: "+point.alt+"m";
+    timeData.innerText = "time: "+window.calculations.convertSecondstoTime(point.time);
+
+    if (place) place.removeFrom(map);
+    place = L.circle([point.lat, point.long], { color: 'blue', fillColor: '#0000ff', fillOpacity: 1, radius: 1 }).addTo(map);
+
+    return [values, tooltipData.dataset.label];
+}
+
+// --- Read GPS file ---
+document.getElementById("Read").addEventListener("click", () => {
+    const fileName = document.getElementById("input").value || "gpspoilog.csv";
+    Util.readStorageFile(fileName, data => {
+        if (!data) return console.log("File empty or not found:", fileName);
+        text = data;
+        show(map, heart_rateChart, speedChart, altChart);
+    });
+});
 </script>
 </body>
 </html>
