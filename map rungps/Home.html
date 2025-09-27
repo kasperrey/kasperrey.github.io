@@ -288,60 +288,43 @@
     getData();
 
     function getData() {
-        var connection;
-        document.getElementById("btnConnect").addEventListener("click", function () {
-            // disconnect if connected already
-            if (connection) {
-                connection.close();
-                connection = undefined;
-            }
-            // Connect
-            Puck.connect(function (c) {
-                if (!c) {
-                    alert("Couldn't connect!");
-                    return;
-                }
-                connection = c;
-                // Handle the data we get back, and call 'onLine'
-                // whenever we get a line
-                connection.on("data", function (d) {
-                    var l = "";
-                    for (var char of d.split("")) {
-                        if (char === "0" || char === "1" || char === "2" || char === "3" || char === "4" || char === "5" ||
-                            char === "6" || char === "7" || char === "8" || char === "9" || char === " " ||
-                            char === "," || char === "." || char === "\n") {
-                            l += char;
-                        } else if (char === "]") {
-                            text += l;
-                            console.log(text);
-                            show(map, heart_rateChart, speedChart, altChart)
-                        }
-                    }
-                    text += l;
-                });
+    let text = "";
 
-                document.getElementById("Read").addEventListener("click", function() {
-                    console.log(document.getElementById("input").value);
-                    var BANGLE_CODE = `
-var f = require("Storage").open("rungps.`+document.getElementById("input").value+`.csv","r");
-var l = f.readLine();
-while (l != undefined) {
-    Bluetooth.print(l);
-    var l = f.readLine();
-}`;
+    const btnConnect = document.getElementById("btnConnect");
+    const btnRead = document.getElementById("Read");
+    const inputField = document.getElementById("input");
 
-                    connection.write("reset();\n", function () {
-                        setTimeout(function () {
-                            connection.write("\x03\x10if(1){" + BANGLE_CODE + "}\n",
-                                function () {
-                                    console.log("Ready...");
-                                });
-                        }, 1500);
-                    });
-                });
-            });
+    function filterData(data) {
+        // Allow only digits, spaces, commas, periods, newlines
+        return data.replace(/[^0-9 ,.\n]/g, "");
+    }
+
+    function handleFile(data) {
+        if (!data) {
+            console.log("No data found in gpspoilog.csv");
+            return;
+        }
+        text = filterData(data);
+        console.log("Loaded file content:", text);
+        show(map, heart_rateChart, speedChart, altChart);
+    }
+
+    function connectAndRead() {
+        Util.connectDevice().then(() => {
+            console.log("Connected!");
+            const fileName = inputField.value || "gpspoilog.csv";
+            Util.readStorageFile(fileName, handleFile);
+        }).catch(err => {
+            alert("Couldn't connect: " + err);
         });
     }
+
+    btnConnect.addEventListener("click", connectAndRead);
+    btnRead.addEventListener("click", () => {
+        const fileName = inputField.value || "gpspoilog.csv";
+        Util.readStorageFile(fileName, handleFile);
+    });
+}
 
     function labelMaker(tooltipData, chart) {
         const labels = tooltipData.dataset.label.toString();
