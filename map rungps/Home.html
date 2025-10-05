@@ -10,13 +10,12 @@
             integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
             crossorigin=""></script>
 
-    <script src="../../core/lib/interface.js"></script>
+    <script src="interface.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.5/dist/chart.umd.min.js"></script>
     <link rel="stylesheet" href="Home.css">
 </head>
 <body>
 <script src="calculations.js"></script>
-<script src="interface.js"></script>
 
 <div id="map"></div>
 <div id="charts">
@@ -143,7 +142,7 @@ function labelMaker(tooltipData, chart) {
 
 // --- Read GPS file ---
 document.getElementById("Read").addEventListener("click", () => {
-    const fileName = document.getElementById("input").value || "gpspoilog.csv";
+    const fileName = "rungps."+document.getElementById("input").value+".csv" || "gpspoilog.csv";
     Util.readStorageFile(fileName, data => {
         if (!data) return console.log("File empty or not found:", fileName);
         text = data;
