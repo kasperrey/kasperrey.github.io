@@ -146,7 +146,7 @@ document.getElementById("Read").addEventListener("click", () => {
     Util.readStorageFile(fileName, data => {
         if (!data) return console.log("File empty or not found:", fileName);
         text = data;
-        show(map, heart_rateChart, speedChart, altChart);
+        show(map);
     });
 });
 </script>

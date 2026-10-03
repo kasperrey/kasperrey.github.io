@@ -1,27 +1,34 @@
-.Chart {
-    width: 100%;
-}
-
-#charts {
-    width: 50%;
-}
-
-#altitudeChart {
-    position: absolute;
-    left: 50%;
-    top: 1%;
-}
-
 .data {
     border-bottom: #838383 solid 2px;
     border-top: #838383 solid 2px;
     width: 50%;
+    position: absolute;
+    top: 50%;
 }
 
 #map {
     height: 50%;
     width: 50%;
     position: absolute;
-    left: 50%;
-    top: 50%;
+    left: 0;
+    top: 0;
 }
+
+#inputDiv {
+    position: absolute;
+    top: calc(50% + 100px);
+}
+# Running
+
+This app is designed to be easy to use.
+I tried to make it as clear as possible.
+
+## How to use?
+
+When the app starts you have two options:
+- **Run**   this is if you go run.
+- **Results** use this to see your prestations.
+
+## Run
+When you clicked on **run** you see four squares and a red one in middle. To start running press the button 1 on side of the bangle.js, the square in the middle is green now. To stop you need to press the button again and then the screen frezes. If you want your results, open the app again and press **Results**
+
